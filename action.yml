@@ -108,6 +108,8 @@ runs:
   #     run: ./fetch-deps.sh
 
     - name: Deploy to SSH
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       if: "${{ steps.manifest-load.outputs.manifest != '' }}"
       id: 'deploy-to-ssh'
       uses: saucal/action-deploy-ssh@v1
