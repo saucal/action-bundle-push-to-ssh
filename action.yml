@@ -1,0 +1,135 @@
+name: "Push to SSH"
+description: "Push built source to SSH"
+inputs:
+  source:
+    description: "Source directory"
+    required: false
+    default: 'source'
+  built:
+    description: "Previous build directory (needs to be repo and have a remote)"
+    required: false
+    default: 'built'
+  env-host:
+    description: "Env Host"
+    required: true
+    default: ''
+  env-port:
+    description: "Env Port"
+    required: true
+    default: ''
+  env-user:
+    description: "Env User"
+    required: true
+    default: ''
+  env-key:
+    description: "Env SSH Key"
+    required: true
+    default: ''
+  env-remote-root:
+    description: "Env Remote Root"
+    required: true
+    default: ''
+  env-ssh-flags:
+    description: "SSH Flags to pass to the RSync command"
+    required: false
+    default: 'azvrn'
+  force-ignore:
+    description: "Force ignore files"
+    required: false
+    default: |
+      /auth.json
+      /vendor/*
+      !/vendor/composer
+      /vendor/composer/*
+      !/vendor/composer/installers
+      !/vendor/composer/installed.json
+  ssh-ignore:
+    description: "Force ignore files"
+    required: false
+    default: |
+      /vendor/**
+      /auth.json
+      /composer.json
+      /composer.lock
+  full-deployment:
+    description: "Force full deployment"
+    required: false
+    default: "${{ github.event_name != 'push' }}"
+    
+runs:
+  using: "composite"
+  steps:
+    - name: Set message
+      uses: saucal/action-slack-notification@v1
+      with:
+        status: "Preparing built assets :large_yellow_circle:"
+
+    - name: Build To GIT
+      id: 'build-to-git'
+      uses: saucal/action-build-to-git@v1
+      with:
+        from: ${{ inputs.source }}
+        path: ${{ inputs.built }}
+        defer-push: "true"
+        force-ignore: ${{ inputs.force-ignore }}
+
+    - name: Set message
+      uses: saucal/action-slack-notification@v1
+      with:
+        status: "Pushing to SSH :large_yellow_circle:"
+
+    - name: Define manifest to use
+      id: manifest-load
+      shell: bash
+      run: |
+        {
+          if [ "${{ inputs.full-deployment }}" == "true" ]; then
+            echo 'manifest<<EOF_MANIFEST'
+            echo "${{ steps.build-to-git.outputs.manifest-full }}"
+            echo 'EOF_MANIFEST'
+          else
+            echo 'manifest<<EOF_MANIFEST'
+            echo "${{ steps.build-to-git.outputs.manifest }}"
+            echo 'EOF_MANIFEST'
+          fi
+        } >> $GITHUB_OUTPUT
+    
+    - name: Setup SSH Keys and known_hosts
+      env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      shell: bash
+      run: |
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null
+          ssh-add - <<< "${{ inputs.env-key }}"
+
+  # -   name: Some task that fetches dependencies
+  #     env:
+  #         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+  #     run: ./fetch-deps.sh
+
+    - name: Deploy to SSH
+      if: "${{ steps.manifest-load.outputs.manifest != '' }}"
+      id: 'deploy-to-ssh'
+      uses: saucal/action-deploy-ssh@v1
+      with:
+        manifest: "${{ steps.manifest-load.outputs.manifest }}"
+        env-host: ${{ inputs.env-host }}
+        env-port: ${{ inputs.env-port }}
+        env-user: ${{ inputs.env-user }}
+        # env-key: ${{ inputs.env-key }}
+        env-local-root: ${{ inputs.built }}
+        env-remote-root: ${{ inputs.env-remote-root }}
+        env-ssh-flags: ${{ inputs.env-ssh-flags }}
+        force-ignore: ${{ inputs.ssh-ignore }}
+
+    - name: Set message
+      uses: saucal/action-slack-notification@v1
+      with:
+        status: "Pushing to GIT :large_yellow_circle:"
+
+    - name: Push to GIT
+      id: 'push-to-git'
+      uses: saucal/action-build-to-git@v1
+      with:
+        path: ${{ inputs.built }}
+        do-push: "true"
