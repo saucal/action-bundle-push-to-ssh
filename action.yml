@@ -104,6 +104,11 @@ runs:
           fi
         } >> $GITHUB_OUTPUT
     
+    - name: Mutate manifest for rsync
+      shell: bash
+      run: |
+        sed -i -E "s/^[+-] //" "${{ steps.manifest-load.outputs.manifest }}"
+
     - name: Setup SSH Keys and known_hosts
       env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
