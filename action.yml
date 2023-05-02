@@ -100,16 +100,10 @@ runs:
       shell: bash
       run: |
           mkdir -p /home/runner/.ssh
-          ssh-keyscan "${{ inputs.env-host }}" >> /home/runner/.ssh/known_hosts2
           echo "${{ inputs.env-key }}" > /home/runner/.ssh/github_actions
           chmod 600 /home/runner/.ssh/github_actions
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
           ssh-add /home/runner/.ssh/github_actions
-
-  # -   name: Some task that fetches dependencies
-  #     env:
-  #         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-  #     run: ./fetch-deps.sh
 
     - name: Deploy to SSH
       env:
