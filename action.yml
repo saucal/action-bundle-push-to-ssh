@@ -29,10 +29,18 @@ inputs:
     description: "Env Remote Root"
     required: true
     default: ''
-  env-ssh-flags:
+  ssh-flags:
     description: "SSH Flags to pass to the RSync command"
     required: false
     default: 'azvrn'
+  ssh-shell-params:
+    description: "Parameters to be passed to the SSH shell command"
+    required: false
+    default: ''
+  ssh-extra-options:
+    description: "Extra options for the RSync command"
+    required: false
+    default: ''
   force-ignore:
     description: "Force ignore files"
     required: false
@@ -47,6 +55,8 @@ inputs:
     description: "Force ignore files"
     required: false
     default: |
+      .git
+      uploads/
       /vendor/**
       /auth.json
       /composer.json
@@ -119,8 +129,10 @@ runs:
         # env-key: ${{ inputs.env-key }}
         env-local-root: ${{ inputs.built }}
         env-remote-root: ${{ inputs.env-remote-root }}
-        env-ssh-flags: ${{ inputs.env-ssh-flags }}
         force-ignore: ${{ inputs.ssh-ignore }}
+        ssh-flags: ${{ inputs.ssh-flags }}
+        ssh-shell-params: ${{ inputs.ssh-shell-params }}
+        ssh-extra-options: ${{ inputs.ssh-extra-options }}
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
