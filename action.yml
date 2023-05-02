@@ -123,7 +123,6 @@ runs:
     - name: Deploy to SSH
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      if: "${{ steps.manifest-load.outputs.manifest != '' }}"
       id: 'deploy-to-ssh'
       uses: saucal/action-deploy-ssh@v1
       with:
@@ -131,13 +130,29 @@ runs:
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
         env-user: ${{ inputs.env-user }}
-        # env-key: ${{ inputs.env-key }}
         env-local-root: ${{ inputs.built }}
         env-remote-root: ${{ inputs.env-remote-root }}
         force-ignore: ${{ inputs.ssh-ignore }}
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
+
+    - name: Consistency check
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      id: 'deploy-to-ssh'
+      uses: saucal/action-deploy-ssh@v1
+      with:
+        env-host: ${{ inputs.env-host }}
+        env-port: ${{ inputs.env-port }}
+        env-user: ${{ inputs.env-user }}
+        env-local-root: ${{ inputs.built }}
+        env-remote-root: ${{ inputs.env-remote-root }}
+        force-ignore: ${{ inputs.ssh-ignore }}
+        ssh-flags: ${{ inputs.ssh-flags }}
+        ssh-shell-params: ${{ inputs.ssh-shell-params }}
+        ssh-extra-options: ${{ inputs.ssh-extra-options }}
+        consistency-check: true
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
