@@ -100,8 +100,8 @@ runs:
       shell: bash
       run: |
           mkdir -p /home/runner/.ssh
-          ssh-keyscan "${{ inputs.env-key }}" >> /home/runner/.ssh/known_hosts
-          echo "${{ inputs.env-host }}" > /home/runner/.ssh/github_actions
+          ssh-keyscan "${{ inputs.env-host }}" >> /home/runner/.ssh/known_hosts
+          echo "${{ inputs.env-key }}" > /home/runner/.ssh/github_actions
           chmod 600 /home/runner/.ssh/github_actions
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
           ssh-add /home/runner/.ssh/github_actions
