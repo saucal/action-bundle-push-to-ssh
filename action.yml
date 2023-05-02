@@ -140,7 +140,6 @@ runs:
     - name: Consistency check
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      id: 'deploy-to-ssh'
       uses: saucal/action-deploy-ssh@v1
       with:
         env-host: ${{ inputs.env-host }}
