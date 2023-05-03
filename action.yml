@@ -79,6 +79,23 @@ runs:
       with:
         status: "Preparing built assets :large_yellow_circle:"
 
+    - name: Consistency check
+      if: "${{ inputs.disable-consistency-check != 'true' }}"
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      uses: saucal/action-deploy-ssh@v1
+      with:
+        env-host: ${{ inputs.env-host }}
+        env-port: ${{ inputs.env-port }}
+        env-user: ${{ inputs.env-user }}
+        env-local-root: ${{ inputs.built }}
+        env-remote-root: ${{ inputs.env-remote-root }}
+        force-ignore: ${{ inputs.ssh-ignore }}
+        ssh-flags: ${{ inputs.ssh-flags }}
+        ssh-shell-params: ${{ inputs.ssh-shell-params }}
+        ssh-extra-options: ${{ inputs.ssh-extra-options }}
+        consistency-check: true
+
     - name: Build To GIT
       id: 'build-to-git'
       uses: saucal/action-build-to-git@v1
@@ -138,23 +155,6 @@ runs:
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
-
-    - name: Consistency check
-      if: "${{ inputs.disable-consistency-check != 'true' }}"
-      env:
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      uses: saucal/action-deploy-ssh@v1
-      with:
-        env-host: ${{ inputs.env-host }}
-        env-port: ${{ inputs.env-port }}
-        env-user: ${{ inputs.env-user }}
-        env-local-root: ${{ inputs.built }}
-        env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }}
-        ssh-flags: ${{ inputs.ssh-flags }}
-        ssh-shell-params: ${{ inputs.ssh-shell-params }}
-        ssh-extra-options: ${{ inputs.ssh-extra-options }}
-        consistency-check: true
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
