@@ -106,6 +106,7 @@ runs:
         } >> $GITHUB_OUTPUT
     
     - name: Mutate manifest for rsync
+      if: "${{ steps.manifest-load.outputs.manifest != '' }}"
       shell: bash
       run: |
         sed -i -E "s/^[+-] //" "${{ steps.manifest-load.outputs.manifest }}"
