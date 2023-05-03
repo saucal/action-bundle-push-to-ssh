@@ -85,6 +85,7 @@ runs:
       shell: bash
       run: |
           mkdir -p /home/runner/.ssh
+          ssh-keyscan -H "${{ inputs.env-host }}" >> /home/runner/.ssh/known_hosts
           echo "${{ inputs.env-key }}" > /home/runner/.ssh/github_actions
           chmod 600 /home/runner/.ssh/github_actions
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
