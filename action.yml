@@ -79,6 +79,22 @@ runs:
       with:
         status: "Preparing built assets :large_yellow_circle:"
 
+    - name: Setup SSH Keys and known_hosts
+      env:
+          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+      shell: bash
+      run: |
+          mkdir -p /home/runner/.ssh
+          echo "${{ inputs.env-key }}" > /home/runner/.ssh/github_actions
+          chmod 600 /home/runner/.ssh/github_actions
+          ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
+          ssh-add /home/runner/.ssh/github_actions
+
+    - name: Set message
+      uses: saucal/action-slack-notification@v1
+      with:
+        status: "Running a Filesystem consistency check :large_yellow_circle:"
+
     - name: Consistency check
       if: "${{ inputs.disable-consistency-check != 'true' }}"
       env:
@@ -127,17 +143,6 @@ runs:
       shell: bash
       run: |
         sed -i -E "s/^[+-] //" "${{ steps.manifest-load.outputs.manifest }}"
-
-    - name: Setup SSH Keys and known_hosts
-      env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      shell: bash
-      run: |
-          mkdir -p /home/runner/.ssh
-          echo "${{ inputs.env-key }}" > /home/runner/.ssh/github_actions
-          chmod 600 /home/runner/.ssh/github_actions
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
-          ssh-add /home/runner/.ssh/github_actions
 
     - name: Deploy to SSH
       env:
