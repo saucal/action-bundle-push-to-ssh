@@ -61,11 +61,16 @@ inputs:
       /auth.json
       /composer.json
       /composer.lock
-  full-deployment:
-    description: "Force full deployment"
+  ignore-manifest:
+    description: Ignore manifest and do full rsync on all files/dirs that differ.
     required: false
-    default: "${{ github.event_name != 'push' }}"
-    
+    default: ''
+  disable-consistency-check:
+    description: Do not do a consistency check and complete the workflow regardless.
+    required: false
+    default: ''
+
+
 runs:
   using: "composite"
   steps:
@@ -93,11 +98,7 @@ runs:
       shell: bash
       run: |
         {
-          if [ "${{ inputs.full-deployment }}" == "true" ]; then
-            echo 'manifest<<EOF_MANIFEST'
-            echo "${{ steps.build-to-git.outputs.manifest-full }}"
-            echo 'EOF_MANIFEST'
-          else
+          if [ "${{ inputs.ignore-manifest }}" != "true" ]; then
             echo 'manifest<<EOF_MANIFEST'
             echo "${{ steps.build-to-git.outputs.manifest }}"
             echo 'EOF_MANIFEST'
@@ -138,6 +139,7 @@ runs:
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
 
     - name: Consistency check
+      if: "${{ inputs.disable-consistency-check != 'true' }}"
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       uses: saucal/action-deploy-ssh@v1
