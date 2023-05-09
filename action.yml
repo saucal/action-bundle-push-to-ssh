@@ -162,6 +162,13 @@ runs:
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
 
+    - name: Cleanup
+      shell: bash
+      run: |
+        rm -f /home/runner/.ssh/github_actions
+        ssh-agent -k
+        ssh-add -D
+
     - name: Set message
       uses: saucal/action-slack-notification@v1
       with:
