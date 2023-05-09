@@ -90,6 +90,8 @@ runs:
           chmod 600 /home/runner/.ssh/github_actions
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
           ssh-add /home/runner/.ssh/github_actions
+          echo "PID:"
+          echo $SSH_AGENT_PID
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
@@ -165,6 +167,8 @@ runs:
     - name: Cleanup
       shell: bash
       run: |
+        echo "PID:"
+        echo $SSH_AGENT_PID
         rm -f /home/runner/.ssh/github_actions
         ssh-agent -k
         ssh-add -D
