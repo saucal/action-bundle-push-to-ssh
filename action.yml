@@ -178,4 +178,3 @@ runs:
       shell: bash
       run: |
         rm -f /home/runner/.ssh/github_actions
-        ssh-add -D
