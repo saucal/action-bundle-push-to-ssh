@@ -23,7 +23,11 @@ inputs:
     default: ''
   env-key:
     description: "Env SSH Key"
-    required: true
+    required: false
+    default: ''
+  env-pass:
+    description: "Env Password"
+    required: false
     default: ''
   env-remote-root:
     description: "Env Remote Root"
@@ -80,6 +84,7 @@ runs:
         status: "Preparing built assets :large_yellow_circle:"
 
     - name: Setup SSH Keys and known_hosts
+      if: "${{ inputs.env-key != '' }}"
       env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       shell: bash
@@ -155,6 +160,8 @@ runs:
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
         env-user: ${{ inputs.env-user }}
+        env-key: ${{ inputs.env-key }}
+        env-pass: ${{ inputs.env-pass }}
         env-local-root: ${{ inputs.built }}
         env-remote-root: ${{ inputs.env-remote-root }}
         force-ignore: ${{ inputs.ssh-ignore }}
