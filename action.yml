@@ -96,6 +96,12 @@ runs:
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
           ssh-add /home/runner/.ssh/github_actions
 
+    - name: Install sshpass
+      if: "${{ inputs.env-pass != '' }}"
+      shell: bash
+      run: |
+          apt-get update && apt-get install -y sshpass
+
     - name: Set message
       uses: saucal/action-slack-notification@v1
       with:
