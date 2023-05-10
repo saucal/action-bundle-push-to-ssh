@@ -111,6 +111,7 @@ runs:
       if: "${{ inputs.disable-consistency-check != 'true' }}"
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        SSHPASS: ${{ inputs.env-pass }}
       uses: saucal/action-deploy-ssh@v1
       with:
         env-host: ${{ inputs.env-host }}
