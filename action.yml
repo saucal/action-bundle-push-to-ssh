@@ -100,7 +100,7 @@ runs:
       if: "${{ inputs.env-pass != '' }}"
       shell: bash
       run: |
-          apt-get update && apt-get install -y sshpass
+          apt-get install -y sshpass
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
