@@ -83,14 +83,18 @@ runs:
       with:
         status: "Preparing built assets :large_yellow_circle:"
 
-    - name: Setup SSH Keys and known_hosts
+    - name: Setup SSH Known hosts
+      shell: bash
+      run: |
+          mkdir -p /home/runner/.ssh
+          ssh-keyscan -p ${{ inputs.env-port }} -H "${{ inputs.env-host }}" >> /home/runner/.ssh/known_hosts
+
+    - name: Setup SSH Keys
       if: "${{ inputs.env-key != '' }}"
       env:
           SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       shell: bash
       run: |
-          mkdir -p /home/runner/.ssh
-          ssh-keyscan -p ${{ inputs.env-port }} -H "${{ inputs.env-host }}" >> /home/runner/.ssh/known_hosts
           echo "${{ inputs.env-key }}" > /home/runner/.ssh/github_actions
           chmod 600 /home/runner/.ssh/github_actions
           ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
