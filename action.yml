@@ -119,19 +119,6 @@ runs:
         path: ${{ inputs.built }}
         get-deployignore: "true"
 
-    - name: test deployignore
-      shell: bash
-      run: |
-        echo "delployignore-rules:"
-        echo "${{ steps.get-deployignore.outputs.delployignore-rules }}"
-
-    - name: check whats in gitignore
-      shell: bash
-      run: |
-        echo "current gitignore:"
-        cat ${{ inputs.built }}/.gitignore
-
-
     - name: Consistency check
       if: "${{ inputs.disable-consistency-check != 'true' }}"
       env:
@@ -199,7 +186,7 @@ runs:
         env-pass: ${{ inputs.env-pass }}
         env-local-root: ${{ inputs.built }}
         env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }}
+        force-ignore: ${{ inputs.ssh-ignore }} ${{ steps.get-deployignore.outputs.delployignore-rules }}
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
