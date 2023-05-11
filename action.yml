@@ -121,6 +121,7 @@ runs:
     - name: test deployignore
       shell: bash
       run: |
+        echo "delployignore-rules:"
         echo "${{ steps.get-deployignore.outputs.delployignore-rules }}"
 
     - name: Consistency check
@@ -137,7 +138,7 @@ runs:
         env-pass: ${{ inputs.env-pass }}
         env-local-root: ${{ inputs.built }}
         env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }} + '\n' + ${{ steps.get-deployignore.outputs.delployignore-rules }}
+        force-ignore: ${{ inputs.ssh-ignore }} "\n" ${{ steps.get-deployignore.outputs.delployignore-rules }}
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
