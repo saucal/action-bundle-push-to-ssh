@@ -125,6 +125,13 @@ runs:
         echo "delployignore-rules:"
         echo "${{ steps.get-deployignore.outputs.delployignore-rules }}"
 
+    - name: check whats in gitignore
+      shell: bash
+      run: |
+        echo "current gitignore:"
+        cat ${{ inputs.built }}/.gitignore
+
+
     - name: Consistency check
       if: "${{ inputs.disable-consistency-check != 'true' }}"
       env:
