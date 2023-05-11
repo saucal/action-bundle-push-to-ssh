@@ -74,7 +74,6 @@ inputs:
     required: false
     default: ''
 
-
 runs:
   using: "composite"
   steps:
@@ -138,7 +137,7 @@ runs:
         env-pass: ${{ inputs.env-pass }}
         env-local-root: ${{ inputs.built }}
         env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }}
+        force-ignore: join( [ ${{ inputs.ssh-ignore }}, ${{ steps.get-deployignore.outputs.delployignore-rules }} ], '\n' );
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
