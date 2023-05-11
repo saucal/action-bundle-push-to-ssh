@@ -106,6 +106,7 @@ runs:
           sudo apt-get install -y sshpass
 
     - name: Set message
+      if: "${{ inputs.disable-consistency-check != 'true' }}"
       uses: saucal/action-slack-notification@v1
       with:
         status: "Running a Filesystem consistency check :large_yellow_circle:"
