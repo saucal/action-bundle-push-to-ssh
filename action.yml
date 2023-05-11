@@ -111,19 +111,19 @@ runs:
       with:
         status: "Running a Filesystem consistency check :large_yellow_circle:"
 
-    # - name: Get deployignore rules
-    #   id: get-deployignore
-    #   uses: saucal/action-build-to-git@test # TODO: version
-    #   with:
-    #     from: ${{ inputs.source }}
-    #     path: ${{ inputs.built }}
-    #     get-deployignore: "true"
+    - name: Get deployignore rules
+      id: get-deployignore
+      uses: saucal/action-build-to-git@test # TODO: version
+      with:
+        from: ${{ inputs.source }}
+        path: ${{ inputs.built }}
+        get-deployignore: "true"
 
-    # - name: test deployignore
-    #   shell: bash
-    #   run: |
-    #     echo "delployignore-rules:"
-    #     echo "${{ steps.get-deployignore.outputs.delployignore-rules }}"
+    - name: test deployignore
+      shell: bash
+      run: |
+        echo "delployignore-rules:"
+        echo "${{ steps.get-deployignore.outputs.delployignore-rules }}"
 
     - name: check whats in gitignore
       shell: bash
@@ -146,7 +146,7 @@ runs:
         env-pass: ${{ inputs.env-pass }}
         env-local-root: ${{ inputs.built }}
         env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }} # ${{ steps.get-deployignore.outputs.delployignore-rules }}
+        force-ignore: ${{ inputs.ssh-ignore }} ${{ steps.get-deployignore.outputs.delployignore-rules }}
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
