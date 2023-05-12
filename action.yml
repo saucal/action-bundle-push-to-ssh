@@ -169,7 +169,7 @@ runs:
       if: "${{ steps.manifest-load.outputs.manifest != '' }}"
       shell: bash
       run: |
-        sed -i -E "s/^[+-] //" "${{ steps.manifest-load.outputs.manifest }}"
+        mutate-manifest.sh "${{ steps.manifest-load.outputs.manifest }}" "${{ inputs.built }}"
 
     - name: Deploy to SSH
       env:
