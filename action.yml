@@ -177,6 +177,7 @@ runs:
       shell: bash
       run: |
         "${{ github.action_path }}/mutate-manifest.sh" "${{ steps.manifest-load.outputs.manifest }}" "${{ inputs.built }}"
+        cat "${{ steps.manifest-load.outputs.manifest }}"
 
     - name: Deploy to SSH
       if: "${{ inputs.dry-run != 'true' }}"
