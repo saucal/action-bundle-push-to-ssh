@@ -169,7 +169,7 @@ runs:
       if: "${{ steps.manifest-load.outputs.manifest != '' }}"
       shell: bash
       run: |
-        mutate-manifest.sh "${{ steps.manifest-load.outputs.manifest }}" "${{ inputs.built }}"
+        "${{ github.action_path }}/mutate-manifest.sh" "${{ steps.manifest-load.outputs.manifest }}" "${{ inputs.built }}"
 
     - name: Deploy to SSH
       env:
