@@ -117,7 +117,7 @@ runs:
 
     - name: Get deployignore rules
       id: get-deployignore
-      uses: saucal/action-build-to-git@test # TODO: version
+      uses: saucal/action-build-to-git@test # TODO: version after merge of that action
       with:
         from: ${{ inputs.source }}
         path: ${{ inputs.built }}
@@ -146,7 +146,7 @@ runs:
     - name: Build To GIT
       if: "${{ inputs.dry-run != 'true' }}"
       id: 'build-to-git'
-      uses: saucal/action-build-to-git@v1
+      uses: saucal/action-build-to-git@test # TODO: version after merge of that action
       with:
         from: ${{ inputs.source }}
         path: ${{ inputs.built }}
@@ -209,7 +209,7 @@ runs:
     - name: Push to GIT
       if: "${{ inputs.dry-run != 'true' }}"
       id: 'push-to-git'
-      uses: saucal/action-build-to-git@v1
+      uses: saucal/action-build-to-git@test # TODO: version after merge of that action
       with:
         path: ${{ inputs.built }}
         do-push: "true"
