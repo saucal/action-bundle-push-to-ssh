@@ -77,6 +77,10 @@ inputs:
     description: Do not do a consistency check and complete the workflow regardless.
     required: false
     default: ''
+outputs:
+  outputBuffer:
+    description: "Manifest of files changed"
+    value: ${{ steps.consistency-check.outputs.outputBuffer }}
 
 runs:
   using: "composite"
@@ -124,6 +128,7 @@ runs:
         get-deployignore: "true"
 
     - name: Consistency check
+      id: consistency-check
       if: "${{ inputs.disable-consistency-check != 'true' }}"
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
