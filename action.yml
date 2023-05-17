@@ -78,7 +78,7 @@ inputs:
     required: false
     default: ''
 outputs:
-  outputBuffer:
+  rsyncOutput:
     description: "Manifest of files changed"
     value: ${{ steps.consistency-check.outputs.outputBuffer }}
 
