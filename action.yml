@@ -80,7 +80,7 @@ inputs:
 outputs:
   rsyncOutput:
     description: "Manifest of files changed"
-    value: ${{ steps.consistency-check.outputs.outputBuffer }}
+    value: ${{ steps.pre-build-consistency-check.outputs.outputBuffer }}
 
 runs:
   using: "composite"
@@ -127,9 +127,9 @@ runs:
         path: ${{ inputs.built }}
         get-deployignore: "true"
 
-    - name: Consistency check
-      id: consistency-check
-      if: "${{ inputs.disable-consistency-check != 'true' }}"
+    - name: Pre-build Consistency check
+      id: pre-build-consistency-check
+      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run == 'true' }}"
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSHPASS: ${{ inputs.env-pass }}
@@ -176,13 +176,36 @@ runs:
             echo 'EOF_MANIFEST'
           fi
         } >> $GITHUB_OUTPUT
-    
-    - name: Mutate manifest for rsync
-      if: ${{ inputs.dry-run != 'true' && steps.manifest-load.outputs.manifest != '' }}
+
+    - name: Post-build Consistency check
+      id: post-build-consistency-check
+      if: "${{ inputs.disable-consistency-check != 'true' }}"
+      continue-on-error: true
+      env:
+        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
+        SSHPASS: ${{ inputs.env-pass }}
+      uses: saucal/action-deploy-ssh@v1
+      with:
+        env-host: ${{ inputs.env-host }}
+        env-port: ${{ inputs.env-port }}
+        env-user: ${{ inputs.env-user }}
+        env-key: ${{ inputs.env-key }}
+        env-pass: ${{ inputs.env-pass }}
+        env-local-root: ${{ inputs.built }}
+        env-remote-root: ${{ inputs.env-remote-root }}
+        force-ignore: ${{ inputs.ssh-ignore }} ${{ steps.get-deployignore.outputs.delployignore-rules }}
+        ssh-flags: ${{ inputs.ssh-flags }}
+        ssh-shell-params: ${{ inputs.ssh-shell-params }}
+        ssh-extra-options: ${{ inputs.ssh-extra-options }}
+        consistency-check: true
+
+    # The output of the post-build-consistency-check should match our manifest.
+    - name: Check Post-build Consistency results
+      if: "${{ inputs.disable-consistency-check != 'true' }}"
       shell: bash
       run: |
-        "${{ github.action_path }}/mutate-manifest.sh" "${{ steps.manifest-load.outputs.manifest }}" "${{ inputs.built }}"
-        cat "${{ steps.manifest-load.outputs.manifest }}"
+        echo -n "${{ steps.post-build-consistency-check.outputs.outputBuffer }}" > "$RUNNER_TEMP/rsyncOutput"
+        "${{ github.action_path }}/check-against-manifest.sh" "${{ steps.manifest-load.outputs.manifest }}" "$RUNNER_TEMP/rsyncOutput"
 
     - name: Deploy to SSH
       if: "${{ inputs.dry-run != 'true' }}"
@@ -192,7 +215,6 @@ runs:
       id: 'deploy-to-ssh'
       uses: saucal/action-deploy-ssh@v1
       with:
-        manifest: "${{ steps.manifest-load.outputs.manifest }}"
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
         env-user: ${{ inputs.env-user }}
