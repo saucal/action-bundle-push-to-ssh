@@ -16,6 +16,12 @@ fi
 echo "Removing leading +/- from manifest file"
 sed -i -E "s/^[+-] //" "$manifest_file"
 
+echo "Removing leading deleting from rsync file"
+sed -i -E "s/^deleting //" "$rsync_file"
+
+echo "Removing directories from rsync file"
+sed -i -E "/\/$/d" "$rsync_file"
+
 # Sort and remove empty lines from the files
 sorted_file1=$(grep -v '^$' "$manifest_file" | sort)
 sorted_file2=$(grep -v '^$' "$rsync_file" | sort)
