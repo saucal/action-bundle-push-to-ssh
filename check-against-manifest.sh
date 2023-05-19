@@ -42,7 +42,7 @@ if [ -n "$3" ]; then
   # Remove lines matching gitignore patterns from files
   while IFS= read -r file_path; do
       if matches_gitignore "$file_path"; then
-          sed -i.bak "/$file_path/d" "$file_path"
+          sed -i "/$file_path/d" "$manifest_file"
           echo "Removed $file_path from manifest file"
       fi
   done < "$manifest_file"
