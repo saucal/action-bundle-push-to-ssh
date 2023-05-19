@@ -38,7 +38,14 @@ matches_gitignore() {
 if [ -n "$3" ]; then
   echo "Applying Gitignore rules:"
   echo "$3"
-  readarray -t gitignore_patterns <<<"$3"
+
+  # Read .gitignore rules into an array
+  gitignore_patterns=()
+  while IFS= read -r pattern; do
+      if [[ -n "$pattern" ]]; then
+          gitignore_patterns+=("$pattern")
+      fi
+  done <<<"$3"
 
   # Create a temporary file to store the updated file paths
   temp_file=$(mktemp)
