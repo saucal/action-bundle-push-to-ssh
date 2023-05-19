@@ -203,9 +203,13 @@ runs:
     - name: Check Post-build Consistency results
       if: "${{ inputs.disable-consistency-check != 'true' }}"
       shell: bash
+      env:
+        PATH_DIR: ${{ inputs.built }}
+        SSH_IGNORE_LIST: ${{ inputs.ssh-ignore }}
+        GIT_MANIFEST: ${{ steps.manifest-load.outputs.manifest }}
+        RSYNC_MANIFEST: ${{ steps.post-build-consistency-check.outputs.outputBuffer }}
       run: |
-        echo -n "${{ steps.post-build-consistency-check.outputs.outputBuffer }}" > "$RUNNER_TEMP/rsyncOutput"
-        "${{ github.action_path }}/check-against-manifest.sh" "${{ steps.manifest-load.outputs.manifest }}" "$RUNNER_TEMP/rsyncOutput" "${{ inputs.ssh-ignore }}"
+        "${{ github.action_path }}/check-against-manifest.sh"
 
     - name: Deploy to SSH
       if: "${{ inputs.dry-run != 'true' }}"

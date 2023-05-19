@@ -1,63 +1,36 @@
 #!/bin/bash
+PATH_DIR="${GITHUB_WORKSPACE}/${PATH_DIR}"
+manifest_file="${GIT_MANIFEST}"
+rsync_file="${RSYNC_MANIFEST}"
 
-if [ $# -lt 2 ]; then
-  echo "Usage: $0 <manifest_file> <rsync_file> <gitignore_rules>"
-  exit 1
-fi
-
-manifest_file="$1"
-rsync_file="$2"
-
-if [ ! -f "$manifest_file" ] || [ ! -f "$rsync_file" ]; then
-  echo "One or both of the files do not exist."
-  exit 1
-fi
+cd "${PATH_DIR}" || exit 1;
 
 echo "Removing leading +/- from manifest file"
 sed -i -E "s/^[+-] //" "$manifest_file"
 
-echo "Removing leading deleting from rsync file"
+echo "Removing leading 'deleting' from rsync file"
 sed -i -E "s/^deleting //" "$rsync_file"
 
 echo "Removing directories from rsync file"
 sed -i -E "/\/$/d" "$rsync_file"
 
-# Function to check if a file path matches any gitignore pattern
-matches_gitignore() {
-    local file_path=$1
-    
-    for pattern in "${gitignore_patterns[@]}"; do
-        if [[ $pattern == /* ]]; then
-            if [[ $file_path == ${pattern:1}* ]]; then
-                return 0  # Match found, return success
-            fi
-        elif [[ $file_path == *$pattern* ]]; then
-            return 0  # Match found, return success
-        fi
-    done
-    
-    return 1  # No match found, return failure
-}
+# if SSH_IGNORE_LIST is not empty
+if [ -n "$SSH_IGNORE_LIST" ]; then
 
-# Process gitignore rules if they are not empty
-if [ -n "$3" ]; then
+  # Process gitignore rules if they are not empty
   echo "Applying Gitignore rules:"
-  echo "$3"
+  echo "${SSH_IGNORE_LIST}"
 
-  # Read .gitignore rules into an array
-  gitignore_patterns=()
-  while IFS= read -r pattern; do
-      if [[ -n "$pattern" ]]; then
-          gitignore_patterns+=("$pattern")
-      fi
-  done <<<"$3"
+  # Popuplate new gitignore file with contents of $SSH_IGNORE_LIST
+  mv .gitignore .gitignore.bak
+  echo "$SSH_IGNORE_LIST" > .gitignore
 
   # Create a temporary file to store the updated file paths
   temp_file=$(mktemp)
 
   # Remove lines matching gitignore patterns from file_paths.txt
   while IFS= read -r file_path; do
-      if ! matches_gitignore "$file_path"; then
+      if ! git check-ignore -q --no-index "$file_path"; then
           echo "$file_path" >> "$temp_file"
       else
           echo "Removed line: $file_path"
@@ -66,6 +39,10 @@ if [ -n "$3" ]; then
 
   # Overwrite the original file_paths.txt with the temporary file
   mv "$temp_file" "$manifest_file"
+
+  # Revert .gitignore to original state
+  mv -f .gitignore.bak .gitignore
+
 fi
 
 # Sort and remove empty lines from the files
@@ -74,7 +51,6 @@ sorted_file2=$(grep -v '^$' "$rsync_file" | sort)
 
 # Compare the sorted files using diff
 diff_output=$(diff -u <(echo "$sorted_file1") <(echo "$sorted_file2"))
-
 
 # Check if there are any differences
 if [ -n "$diff_output" ]; then
