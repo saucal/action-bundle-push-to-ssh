@@ -143,7 +143,7 @@ runs:
     - name: Build To GIT
       if: "${{ inputs.dry-run != 'true' }}"
       id: 'build-to-git'
-      uses: saucal/action-build-to-git@test # TODO: version after merge of that action
+      uses: saucal/action-build-to-git@feature/git-clean # TODO: version after merge of that action
       with:
         from: ${{ inputs.source }}
         path: ${{ inputs.built }}
@@ -233,7 +233,7 @@ runs:
     - name: Push to GIT
       if: "${{ inputs.dry-run != 'true' }}"
       id: 'push-to-git'
-      uses: saucal/action-build-to-git@test # TODO: version after merge of that action
+      uses: saucal/action-build-to-git@feature/git-clean # TODO: version after merge of that action
       with:
         path: ${{ inputs.built }}
         do-push: "true"
