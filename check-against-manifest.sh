@@ -66,9 +66,6 @@ if [ -n "$3" ]; then
 
   # Overwrite the original file_paths.txt with the temporary file
   mv "$temp_file" "$manifest_file"
-
-  # Remove the temporary file
-  rm "$temp_file"
 fi
 
 # Sort and remove empty lines from the files
