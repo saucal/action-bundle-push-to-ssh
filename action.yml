@@ -119,14 +119,6 @@ runs:
       with:
         status: "Running a Filesystem consistency check :large_yellow_circle:"
 
-    # - name: Get deployignore rules
-      # id: get-deployignore
-      # uses: saucal/action-build-to-git@test # TODO: version after merge of that action
-      # with:
-        # from: ${{ inputs.source }}
-        # path: ${{ inputs.built }}
-        # get-deployignore: "true"
-
     - name: Pre-build Consistency check
       id: pre-build-consistency-check
       if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run == 'true' }}"
