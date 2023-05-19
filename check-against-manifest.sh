@@ -3,6 +3,8 @@ PATH_DIR="${GITHUB_WORKSPACE}/${PATH_DIR}"
 manifest_file="${GIT_MANIFEST}"
 rsync_file="${RSYNC_MANIFEST}"
 
+echo "--------------------------------------------------"
+
 cd "${PATH_DIR}" || exit 1;
 
 echo "Removing leading +/- from manifest file"
@@ -18,7 +20,7 @@ sed -i -E "/\/$/d" "$rsync_file"
 if [ -n "$SSH_IGNORE_LIST" ]; then
 
   # Process gitignore rules if they are not empty
-  echo "Applying Gitignore rules:"
+  echo "Applying new Gitignore rules:"
   echo "${SSH_IGNORE_LIST}"
 
   # Popuplate new gitignore file with contents of $SSH_IGNORE_LIST
@@ -33,7 +35,7 @@ if [ -n "$SSH_IGNORE_LIST" ]; then
       if ! git check-ignore -q --no-index "$file_path"; then
           echo "$file_path" >> "$temp_file"
       else
-          echo "Removed line: $file_path"
+          echo "Removed line from GIT manifest: $file_path"
       fi
   done < "$manifest_file"
 
@@ -51,13 +53,15 @@ sorted_file2=$(grep -v '^$' "$rsync_file" | sort)
 
 # Compare the sorted files using diff
 diff_output=$(diff -u <(echo "$sorted_file1") <(echo "$sorted_file2"))
-
+echo "--------------------------------------------------"
 # Check if there are any differences
 if [ -n "$diff_output" ]; then
-  echo "Manifest and Rsync list DO NOT match:"
+  echo "Manifest and Rsync list DO NOT MATCH. Please check the following diff. Lines starting with + are in the rsync list but not in the manifest. Lines starting with - are in the manifest but not in the rsync list."
+  echo "--------------------------------------------------"
   echo "$diff_output"
   exit 1
 else
   echo "Manifest and Rsync list match."
+  echo "--------------------------------------------------"
   exit 0
 fi
