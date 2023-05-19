@@ -119,13 +119,13 @@ runs:
       with:
         status: "Running a Filesystem consistency check :large_yellow_circle:"
 
-    - name: Get deployignore rules
-      id: get-deployignore
-      uses: saucal/action-build-to-git@test # TODO: version after merge of that action
-      with:
-        from: ${{ inputs.source }}
-        path: ${{ inputs.built }}
-        get-deployignore: "true"
+    # - name: Get deployignore rules
+      # id: get-deployignore
+      # uses: saucal/action-build-to-git@test # TODO: version after merge of that action
+      # with:
+        # from: ${{ inputs.source }}
+        # path: ${{ inputs.built }}
+        # get-deployignore: "true"
 
     - name: Pre-build Consistency check
       id: pre-build-consistency-check
@@ -142,7 +142,7 @@ runs:
         env-pass: ${{ inputs.env-pass }}
         env-local-root: ${{ inputs.built }}
         env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }} ${{ steps.get-deployignore.outputs.delployignore-rules }}
+        force-ignore: ${{ inputs.ssh-ignore }}
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
@@ -193,7 +193,7 @@ runs:
         env-pass: ${{ inputs.env-pass }}
         env-local-root: ${{ inputs.built }}
         env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }} ${{ steps.get-deployignore.outputs.delployignore-rules }}
+        force-ignore: ${{ inputs.ssh-ignore }}
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
@@ -205,7 +205,7 @@ runs:
       shell: bash
       run: |
         echo -n "${{ steps.post-build-consistency-check.outputs.outputBuffer }}" > "$RUNNER_TEMP/rsyncOutput"
-        "${{ github.action_path }}/check-against-manifest.sh" "${{ steps.manifest-load.outputs.manifest }}" "$RUNNER_TEMP/rsyncOutput"
+        "${{ github.action_path }}/check-against-manifest.sh" "${{ steps.manifest-load.outputs.manifest }}" "$RUNNER_TEMP/rsyncOutput" "${{ inputs.ssh-ignore }}"
 
     - name: Deploy to SSH
       if: "${{ inputs.dry-run != 'true' }}"
@@ -222,7 +222,7 @@ runs:
         env-pass: ${{ inputs.env-pass }}
         env-local-root: ${{ inputs.built }}
         env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }} ${{ steps.get-deployignore.outputs.delployignore-rules }}
+        force-ignore: ${{ inputs.ssh-ignore }}
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}

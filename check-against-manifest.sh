@@ -1,9 +1,12 @@
 #!/bin/bash
 
 if [ $# -lt 2 ]; then
-  echo "Usage: $0 <manifest_file> <rsync_file>"
+  echo "Usage: $0 <manifest_file> <rsync_file> <gitignore_rules>"
   exit 1
 fi
+
+echo "Gitignore rules:"
+echo "$3"
 
 manifest_file="$1"
 rsync_file="$2"
