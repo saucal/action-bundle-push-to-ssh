@@ -25,12 +25,17 @@ sed -i -E "/\/$/d" "$rsync_file"
 # Function to check if a file path matches any gitignore pattern
 matches_gitignore() {
     local file_path=$1
+    
     for pattern in "${gitignore_patterns[@]}"; do
-        echo "Checking $file_path against $pattern"
-        if echo "$file_path" | grep -qE "$pattern"; then
+        if [[ $pattern == /* ]]; then
+            if [[ $file_path == ${pattern:1}* ]]; then
+                return 0  # Match found, return success
+            fi
+        elif [[ $file_path == *$pattern* ]]; then
             return 0  # Match found, return success
         fi
     done
+    
     return 1  # No match found, return failure
 }
 
