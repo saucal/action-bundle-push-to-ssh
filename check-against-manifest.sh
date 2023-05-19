@@ -26,6 +26,7 @@ sed -i -E "/\/$/d" "$rsync_file"
 matches_gitignore() {
     local file_path=$1
     for pattern in "${gitignore_patterns[@]}"; do
+        echo "Checking $file_path against $pattern"
         if echo "$file_path" | grep -qE "$pattern"; then
             return 0  # Match found, return success
         fi
