@@ -207,8 +207,9 @@ runs:
         PATH_DIR: ${{ inputs.built }}
         SSH_IGNORE_LIST: ${{ inputs.ssh-ignore }}
         GIT_MANIFEST: ${{ steps.manifest-load.outputs.manifest }}
-        RSYNC_MANIFEST: ${{ steps.post-build-consistency-check.outputs.outputBuffer }}
+        RSYNC_MANIFEST: "$RUNNER_TEMP/rsyncOutput"
       run: |
+        echo -n "${{ steps.post-build-consistency-check.outputs.outputBuffer }}" > "$RUNNER_TEMP/rsyncOutput"
         "${{ github.action_path }}/check-against-manifest.sh"
 
     - name: Deploy to SSH
