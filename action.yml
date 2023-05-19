@@ -179,7 +179,7 @@ runs:
 
     - name: Post-build Consistency check
       id: post-build-consistency-check
-      if: "${{ inputs.disable-consistency-check != 'true' }}"
+      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run != 'true' }}"
       continue-on-error: true
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
@@ -201,7 +201,7 @@ runs:
 
     # The output of the post-build-consistency-check should match our manifest.
     - name: Check Post-build Consistency results
-      if: "${{ inputs.disable-consistency-check != 'true' }}"
+      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run != 'true' }}"
       shell: bash
       env:
         PATH_DIR: ${{ inputs.built }}
