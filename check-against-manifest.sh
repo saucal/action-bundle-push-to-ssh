@@ -39,13 +39,23 @@ if [ -n "$3" ]; then
   echo "$3"
   readarray -t gitignore_patterns <<<"$3"
 
-  # Remove lines matching gitignore patterns from files
+  # Create a temporary file to store the updated file paths
+  temp_file=$(mktemp)
+
+  # Remove lines matching gitignore patterns from file_paths.txt
   while IFS= read -r file_path; do
-      if matches_gitignore "$file_path"; then
-          sed -i "/$file_path/d" "$manifest_file"
-          echo "Removed $file_path from manifest file"
+      if ! matches_gitignore "$file_path"; then
+          echo "$file_path" >> "$temp_file"
+      else
+          echo "Removed line: $file_path"
       fi
   done < "$manifest_file"
+
+  # Overwrite the original file_paths.txt with the temporary file
+  mv "$temp_file" "$manifest_file"
+
+  # Remove the temporary file
+  rm "$temp_file"
 fi
 
 # Sort and remove empty lines from the files
