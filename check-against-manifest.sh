@@ -58,7 +58,9 @@ echo "--------------------------------------------------"
 if [ -n "$diff_output" ]; then
   echo "Manifest and Rsync list DO NOT MATCH. Please check the following diff. Lines starting with + are in the rsync list but not in the manifest. Lines starting with - are in the manifest but not in the rsync list."
   echo "--------------------------------------------------"
+  echo "::group::DIFF OUTPUT"
   echo "$diff_output"
+  echo "::endgroup::"
   exit 1
 else
   echo "Manifest and Rsync list match."
