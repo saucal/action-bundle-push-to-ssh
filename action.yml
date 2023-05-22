@@ -69,6 +69,7 @@ inputs:
       /auth.json
       /composer.json
       /composer.lock
+      wp-debug.log
   ignore-manifest:
     description: Ignore manifest and do full rsync on all files/dirs that differ.
     required: false
