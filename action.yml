@@ -64,16 +64,14 @@ inputs:
     required: false
     default: |
       .git
+      wp-debug.log
       uploads/
       /vendor/**
       /auth.json
       /composer.json
       /composer.lock
-      wp-debug.log
-  ignore-manifest:
-    description: Ignore manifest and do full rsync on all files/dirs that differ.
-    required: false
-    default: ''
+      /object-cache.php
+      /db.php
   disable-consistency-check:
     description: Do not do a consistency check and complete the workflow regardless.
     required: false
@@ -158,16 +156,14 @@ runs:
         status: "Pushing to SSH :large_yellow_circle:"
 
     - name: Define manifest to use
-      if: "${{ inputs.dry-run != 'true' }}"
+      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run != 'true' }}"
       id: manifest-load
       shell: bash
       run: |
         {
-          if [ "${{ inputs.ignore-manifest }}" != "true" ]; then
-            echo 'manifest<<EOF_MANIFEST'
-            echo "${{ steps.build-to-git.outputs.manifest }}"
-            echo 'EOF_MANIFEST'
-          fi
+          echo 'manifest<<EOF_MANIFEST'
+          echo "${{ steps.build-to-git.outputs.manifest }}"
+          echo 'EOF_MANIFEST'
         } >> $GITHUB_OUTPUT
 
     - name: Post-build Consistency check
