@@ -79,7 +79,7 @@ inputs:
 outputs:
   rsyncOutput:
     description: "Manifest of files changed"
-    value: ${{ steps.pre-build-consistency-check.outputs.outputBuffer }}
+    value: ${{ steps.pre-build-consistency-check.outputs.outputBuffer }} ${{ steps.post-build-consistency-check.outputs.outputBuffer }}
 
 runs:
   using: "composite"
