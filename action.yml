@@ -92,8 +92,8 @@ runs:
     - name: Setup SSH Known hosts
       shell: bash
       run: |
-          mkdir -p /home/runner/.ssh
-          ssh-keyscan -p ${{ inputs.env-port }} -H "${{ inputs.env-host }}" >> /home/runner/.ssh/known_hosts
+          cat /home/runner/.ssh/known_hosts
+          exit 1
 
     - name: Setup SSH Keys
       if: "${{ inputs.env-key != '' }}"
