@@ -124,7 +124,7 @@ runs:
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSHPASS: ${{ inputs.env-pass }}
-      uses: saucal/action-deploy-ssh@v1
+      uses: saucal/action-deploy-ssh@v1-matias
       with:
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
@@ -173,7 +173,7 @@ runs:
       env:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSHPASS: ${{ inputs.env-pass }}
-      uses: saucal/action-deploy-ssh@v1
+      uses: saucal/action-deploy-ssh@v1-matias
       with:
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
@@ -207,7 +207,7 @@ runs:
         SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSHPASS: ${{ inputs.env-pass }}
       id: 'deploy-to-ssh'
-      uses: saucal/action-deploy-ssh@v1
+      uses: saucal/action-deploy-ssh@v1-matias
       with:
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
