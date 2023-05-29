@@ -109,8 +109,6 @@ runs:
     - name: Pre-build Consistency check
       id: pre-build-consistency-check
       if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run == 'true' }}"
-      env:
-        SSHPASS: ${{ inputs.env-pass }}
       uses: saucal/action-deploy-ssh@v1-matias
       with:
         env-host: ${{ inputs.env-host }}
@@ -157,8 +155,6 @@ runs:
       id: post-build-consistency-check
       if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run != 'true' }}"
       continue-on-error: true
-      env:
-        SSHPASS: ${{ inputs.env-pass }}
       uses: saucal/action-deploy-ssh@v1-matias
       with:
         env-host: ${{ inputs.env-host }}
@@ -189,8 +185,6 @@ runs:
 
     - name: Deploy to SSH
       if: "${{ inputs.dry-run != 'true' }}"
-      env:
-        SSHPASS: ${{ inputs.env-pass }}
       id: 'deploy-to-ssh'
       uses: saucal/action-deploy-ssh@v1-matias
       with:
