@@ -89,17 +89,6 @@ runs:
       with:
         status: "Preparing built assets :large_yellow_circle:"
 
-    - name: Setup SSH Keys
-      shell: bash
-      run: |
-          if [ ! -z "$SSH_AUTH_SOCK" ] ; then
-            echo $SSH_AUTH_SOCK;
-            ssh-add -L;
-          fi
-          ls -al /home/runner/.ssh;
-          which sshpass;
-          exit 1
-
     - name: Set message
       if: "${{ inputs.disable-consistency-check != 'true' }}"
       uses: saucal/action-slack-notification@v1
@@ -123,6 +112,17 @@ runs:
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
         consistency-check: true
+
+    - name: Setup SSH Keys
+      shell: bash
+      run: |
+          if [ ! -z "$SSH_AUTH_SOCK" ] ; then
+            echo $SSH_AUTH_SOCK;
+            ssh-add -L;
+          fi
+          ls -al /home/runner/.ssh;
+          which sshpass;
+          exit 1
 
     - name: Build To GIT
       if: "${{ inputs.dry-run != 'true' }}"
