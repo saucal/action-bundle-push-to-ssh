@@ -92,8 +92,10 @@ runs:
     - name: Setup SSH Keys
       shell: bash
       run: |
-          echo $SSH_AUTH_SOCK;
-          ssh-add -L;
+          if [ ! -z "$SSH_AUTH_SOCK" ] ; then
+            echo $SSH_AUTH_SOCK;
+            ssh-add -L;
+          fi
           ls -al /home/runner/.ssh;
           which sshpass;
           exit 1
