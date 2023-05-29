@@ -154,11 +154,6 @@ runs:
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
 
-    - name: Setup SSH Keys
-      shell: bash
-      run: |
-          exit 1
-
     - name: Set message
       if: "${{ inputs.dry-run != 'true' }}"
       uses: saucal/action-slack-notification@v1
