@@ -90,15 +90,12 @@ runs:
         status: "Preparing built assets :large_yellow_circle:"
 
     - name: Setup SSH Keys
-      if: "${{ inputs.env-key != '' }}"
-      env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
       shell: bash
       run: |
-          echo "${{ inputs.env-key }}" > /home/runner/.ssh/github_actions
-          chmod 600 /home/runner/.ssh/github_actions
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
-          ssh-add /home/runner/.ssh/github_actions
+          echo $SSH_AUTH_SOCK;
+          ssh-add -L;
+          ls -al /home/runner/.ssh;
+          exit 1
 
     - name: Install sshpass
       if: "${{ inputs.env-pass != '' }}"
