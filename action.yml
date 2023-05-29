@@ -81,11 +81,6 @@ runs:
   using: "composite"
   steps:
     - name: Set message
-      uses: saucal/action-slack-notification@v1
-      with:
-        status: "Preparing built assets :large_yellow_circle:"
-
-    - name: Set message
       if: "${{ inputs.disable-consistency-check != 'true' }}"
       uses: saucal/action-slack-notification@v1
       with:
@@ -108,6 +103,11 @@ runs:
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
         consistency-check: true
+
+    - name: Set message
+      uses: saucal/action-slack-notification@v1
+      with:
+        status: "Preparing built assets :large_yellow_circle:"
 
     - name: Build To GIT
       if: "${{ inputs.dry-run != 'true' }}"
