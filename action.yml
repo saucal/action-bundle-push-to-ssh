@@ -95,13 +95,8 @@ runs:
           echo $SSH_AUTH_SOCK;
           ssh-add -L;
           ls -al /home/runner/.ssh;
+          which sshpass;
           exit 1
-
-    - name: Install sshpass
-      if: "${{ inputs.env-pass != '' }}"
-      shell: bash
-      run: |
-          sudo apt-get install -y sshpass
 
     - name: Set message
       if: "${{ inputs.disable-consistency-check != 'true' }}"
