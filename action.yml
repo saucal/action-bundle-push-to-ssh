@@ -140,48 +140,12 @@ runs:
           echo 'EOF_MANIFEST'
         } >> $GITHUB_OUTPUT
 
-    - name: Post-build Consistency check
-      id: post-build-consistency-check
-      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run != 'true' }}"
-      continue-on-error: true
-      uses: saucal/action-deploy-ssh@v1-matias
-      with:
-        env-host: ${{ inputs.env-host }}
-        env-port: ${{ inputs.env-port }}
-        env-user: ${{ inputs.env-user }}
-        env-key: ${{ inputs.env-key }}
-        env-pass: ${{ inputs.env-pass }}
-        env-local-root: ${{ inputs.built }}
-        env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }}
-        ssh-flags: ${{ inputs.ssh-flags }}
-        ssh-shell-params: ${{ inputs.ssh-shell-params }}
-        ssh-extra-options: ${{ inputs.ssh-extra-options }}
-        consistency-check: true
-
-    # The output of the post-build-consistency-check should match our manifest.
-    - name: Check Post-build Consistency results
-      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run != 'true' }}"
-      shell: bash
-      env:
-        PATH_DIR: ${{ inputs.built }}
-        SSH_IGNORE_LIST: ${{ inputs.ssh-ignore }}
-        GIT_MANIFEST: ${{ steps.manifest-load.outputs.manifest }}
-        RSYNC_MANIFEST: "${{ runner.temp }}/rsyncOutput"
-      run: |
-        echo -n "${{ steps.post-build-consistency-check.outputs.outputBuffer }}" > "$RUNNER_TEMP/rsyncOutput"
-        "${{ github.action_path }}/check-against-manifest.sh"
-
-    - name: Setup SSH Keys
-      shell: bash
-      run: |
-          exit 1
-
     - name: Deploy to SSH
       if: "${{ inputs.dry-run != 'true' }}"
       id: 'deploy-to-ssh'
       uses: saucal/action-deploy-ssh@v1-matias
       with:
+        manifest: "${{ steps.manifest-load.outputs.manifest }}"
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
         env-user: ${{ inputs.env-user }}
@@ -193,6 +157,11 @@ runs:
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
+
+    - name: Setup SSH Keys
+      shell: bash
+      run: |
+          exit 1
 
     - name: Set message
       if: "${{ inputs.dry-run != 'true' }}"
