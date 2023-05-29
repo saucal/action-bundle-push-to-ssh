@@ -89,12 +89,6 @@ runs:
       with:
         status: "Preparing built assets :large_yellow_circle:"
 
-    - name: Setup SSH Known hosts
-      shell: bash
-      run: |
-          cat /home/runner/.ssh/known_hosts
-          exit 1
-
     - name: Setup SSH Keys
       if: "${{ inputs.env-key != '' }}"
       env:
