@@ -97,7 +97,7 @@ runs:
 
     - name: Pre-build Consistency check
       id: pre-build-consistency-check
-      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run == 'true' }}"
+      if: "${{ inputs.disable-consistency-check != 'true' }}"
       uses: saucal/action-deploy-ssh@v1-matias
       with:
         env-host: ${{ inputs.env-host }}
