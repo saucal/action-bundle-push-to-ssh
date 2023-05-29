@@ -113,7 +113,6 @@ runs:
       id: pre-build-consistency-check
       if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run == 'true' }}"
       env:
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSHPASS: ${{ inputs.env-pass }}
       uses: saucal/action-deploy-ssh@v1-matias
       with:
@@ -162,7 +161,6 @@ runs:
       if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run != 'true' }}"
       continue-on-error: true
       env:
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSHPASS: ${{ inputs.env-pass }}
       uses: saucal/action-deploy-ssh@v1-matias
       with:
@@ -195,7 +193,6 @@ runs:
     - name: Deploy to SSH
       if: "${{ inputs.dry-run != 'true' }}"
       env:
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
         SSHPASS: ${{ inputs.env-pass }}
       id: 'deploy-to-ssh'
       uses: saucal/action-deploy-ssh@v1-matias
