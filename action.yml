@@ -76,10 +76,6 @@ inputs:
     description: Do not do a consistency check and complete the workflow regardless.
     required: false
     default: ''
-outputs:
-  rsyncOutput:
-    description: "Manifest of files changed"
-    value: ${{ steps.pre-build-consistency-check.outputs.outputBuffer }} ${{ steps.post-build-consistency-check.outputs.outputBuffer }}
 
 runs:
   using: "composite"
