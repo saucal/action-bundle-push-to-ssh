@@ -89,7 +89,7 @@ runs:
     - name: Pre-build Consistency check
       id: pre-build-consistency-check
       if: "${{ inputs.disable-consistency-check != 'true' }}"
-      uses: saucal/action-deploy-ssh@v1-matias
+      uses: saucal/action-deploy-ssh@v1
       with:
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
@@ -139,7 +139,7 @@ runs:
     - name: Deploy to SSH
       if: "${{ inputs.dry-run != 'true' }}"
       id: 'deploy-to-ssh'
-      uses: saucal/action-deploy-ssh@v1-matias
+      uses: saucal/action-deploy-ssh@v1
       with:
         manifest: "${{ steps.manifest-load.outputs.manifest }}"
         env-host: ${{ inputs.env-host }}
