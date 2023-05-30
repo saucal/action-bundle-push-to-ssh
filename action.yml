@@ -77,30 +77,6 @@ runs:
   using: "composite"
   steps:
     - name: Set message
-      if: "${{ inputs.disable-consistency-check != 'true' }}"
-      uses: saucal/action-slack-notification@v1
-      with:
-        status: "Running a Filesystem consistency check :large_yellow_circle:"
-
-    - name: Pre-build Consistency check
-      id: pre-build-consistency-check
-      if: "${{ inputs.disable-consistency-check != 'true' }}"
-      uses: saucal/action-deploy-ssh@v1
-      with:
-        env-host: ${{ inputs.env-host }}
-        env-port: ${{ inputs.env-port }}
-        env-user: ${{ inputs.env-user }}
-        env-key: ${{ inputs.env-key }}
-        env-pass: ${{ inputs.env-pass }}
-        env-local-root: ${{ inputs.built }}
-        env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }}
-        ssh-flags: ${{ inputs.ssh-flags }}
-        ssh-shell-params: ${{ inputs.ssh-shell-params }}
-        ssh-extra-options: ${{ inputs.ssh-extra-options }}
-        consistency-check: true
-
-    - name: Set message
       uses: saucal/action-slack-notification@v1
       with:
         status: "Preparing built assets :large_yellow_circle:"
