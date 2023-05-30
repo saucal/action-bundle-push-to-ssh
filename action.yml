@@ -45,10 +45,6 @@ inputs:
     description: "Extra options for the RSync command"
     required: false
     default: ''
-  dry-run:
-    description: "Only run the Consistency check"
-    required: false
-    default: ''
   force-ignore:
     description: "Force ignore files"
     required: false
@@ -110,7 +106,6 @@ runs:
         status: "Preparing built assets :large_yellow_circle:"
 
     - name: Build To GIT
-      if: "${{ inputs.dry-run != 'true' }}"
       id: 'build-to-git'
       uses: saucal/action-build-to-git@feature/git-clean # TODO: version after merge of that action
       with:
@@ -120,13 +115,12 @@ runs:
         force-ignore: ${{ inputs.force-ignore }}
 
     - name: Set message
-      if: "${{ inputs.dry-run != 'true' }}"
       uses: saucal/action-slack-notification@v1
       with:
         status: "Pushing to SSH :large_yellow_circle:"
 
     - name: Define manifest to use
-      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run != 'true' }}"
+      if: "${{ inputs.disable-consistency-check != 'true' }}"
       id: manifest-load
       shell: bash
       run: |
@@ -137,7 +131,6 @@ runs:
         } >> $GITHUB_OUTPUT
 
     - name: Deploy to SSH
-      if: "${{ inputs.dry-run != 'true' }}"
       id: 'deploy-to-ssh'
       uses: saucal/action-deploy-ssh@v1
       with:
@@ -155,13 +148,11 @@ runs:
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
 
     - name: Set message
-      if: "${{ inputs.dry-run != 'true' }}"
       uses: saucal/action-slack-notification@v1
       with:
         status: "Pushing to GIT :large_yellow_circle:"
 
     - name: Push to GIT
-      if: "${{ inputs.dry-run != 'true' }}"
       id: 'push-to-git'
       uses: saucal/action-build-to-git@feature/git-clean # TODO: version after merge of that action
       with:
