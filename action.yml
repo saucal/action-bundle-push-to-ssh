@@ -76,42 +76,10 @@ inputs:
     description: Do not do a consistency check and complete the workflow regardless.
     required: false
     default: ''
-outputs:
-  rsyncOutput:
-    description: "Manifest of files changed"
-    value: ${{ steps.pre-build-consistency-check.outputs.outputBuffer }} ${{ steps.post-build-consistency-check.outputs.outputBuffer }}
 
 runs:
   using: "composite"
   steps:
-    - name: Set message
-      uses: saucal/action-slack-notification@v1
-      with:
-        status: "Preparing built assets :large_yellow_circle:"
-
-    - name: Setup SSH Known hosts
-      shell: bash
-      run: |
-          mkdir -p /home/runner/.ssh
-          ssh-keyscan -p ${{ inputs.env-port }} -H "${{ inputs.env-host }}" >> /home/runner/.ssh/known_hosts
-
-    - name: Setup SSH Keys
-      if: "${{ inputs.env-key != '' }}"
-      env:
-          SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-      shell: bash
-      run: |
-          echo "${{ inputs.env-key }}" > /home/runner/.ssh/github_actions
-          chmod 600 /home/runner/.ssh/github_actions
-          ssh-agent -a $SSH_AUTH_SOCK > /dev/null	
-          ssh-add /home/runner/.ssh/github_actions
-
-    - name: Install sshpass
-      if: "${{ inputs.env-pass != '' }}"
-      shell: bash
-      run: |
-          sudo apt-get install -y sshpass
-
     - name: Set message
       if: "${{ inputs.disable-consistency-check != 'true' }}"
       uses: saucal/action-slack-notification@v1
@@ -120,11 +88,8 @@ runs:
 
     - name: Pre-build Consistency check
       id: pre-build-consistency-check
-      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run == 'true' }}"
-      env:
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        SSHPASS: ${{ inputs.env-pass }}
-      uses: saucal/action-deploy-ssh@v1
+      if: "${{ inputs.disable-consistency-check != 'true' }}"
+      uses: saucal/action-deploy-ssh@v1-matias
       with:
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
@@ -138,6 +103,11 @@ runs:
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
         consistency-check: true
+
+    - name: Set message
+      uses: saucal/action-slack-notification@v1
+      with:
+        status: "Preparing built assets :large_yellow_circle:"
 
     - name: Build To GIT
       if: "${{ inputs.dry-run != 'true' }}"
@@ -166,49 +136,12 @@ runs:
           echo 'EOF_MANIFEST'
         } >> $GITHUB_OUTPUT
 
-    - name: Post-build Consistency check
-      id: post-build-consistency-check
-      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run != 'true' }}"
-      continue-on-error: true
-      env:
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        SSHPASS: ${{ inputs.env-pass }}
-      uses: saucal/action-deploy-ssh@v1
-      with:
-        env-host: ${{ inputs.env-host }}
-        env-port: ${{ inputs.env-port }}
-        env-user: ${{ inputs.env-user }}
-        env-key: ${{ inputs.env-key }}
-        env-pass: ${{ inputs.env-pass }}
-        env-local-root: ${{ inputs.built }}
-        env-remote-root: ${{ inputs.env-remote-root }}
-        force-ignore: ${{ inputs.ssh-ignore }}
-        ssh-flags: ${{ inputs.ssh-flags }}
-        ssh-shell-params: ${{ inputs.ssh-shell-params }}
-        ssh-extra-options: ${{ inputs.ssh-extra-options }}
-        consistency-check: true
-
-    # The output of the post-build-consistency-check should match our manifest.
-    - name: Check Post-build Consistency results
-      if: "${{ inputs.disable-consistency-check != 'true' && inputs.dry-run != 'true' }}"
-      shell: bash
-      env:
-        PATH_DIR: ${{ inputs.built }}
-        SSH_IGNORE_LIST: ${{ inputs.ssh-ignore }}
-        GIT_MANIFEST: ${{ steps.manifest-load.outputs.manifest }}
-        RSYNC_MANIFEST: "${{ runner.temp }}/rsyncOutput"
-      run: |
-        echo -n "${{ steps.post-build-consistency-check.outputs.outputBuffer }}" > "$RUNNER_TEMP/rsyncOutput"
-        "${{ github.action_path }}/check-against-manifest.sh"
-
     - name: Deploy to SSH
       if: "${{ inputs.dry-run != 'true' }}"
-      env:
-        SSH_AUTH_SOCK: /tmp/ssh_agent.sock
-        SSHPASS: ${{ inputs.env-pass }}
       id: 'deploy-to-ssh'
-      uses: saucal/action-deploy-ssh@v1
+      uses: saucal/action-deploy-ssh@v1-matias
       with:
+        manifest: "${{ steps.manifest-load.outputs.manifest }}"
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
         env-user: ${{ inputs.env-user }}
@@ -234,8 +167,3 @@ runs:
       with:
         path: ${{ inputs.built }}
         do-push: "true"
-
-    - name: Cleanup
-      shell: bash
-      run: |
-        rm -f /home/runner/.ssh/github_actions
