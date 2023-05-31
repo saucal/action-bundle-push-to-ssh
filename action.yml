@@ -83,7 +83,7 @@ runs:
 
     - name: Build To GIT
       id: 'build-to-git'
-      uses: saucal/action-build-to-git@feature/git-clean # TODO: version after merge of that action
+      uses: saucal/action-build-to-git@v1
       with:
         from: ${{ inputs.source }}
         path: ${{ inputs.built }}
@@ -130,7 +130,7 @@ runs:
 
     - name: Push to GIT
       id: 'push-to-git'
-      uses: saucal/action-build-to-git@feature/git-clean # TODO: version after merge of that action
+      uses: saucal/action-build-to-git@v1
       with:
         path: ${{ inputs.built }}
         do-push: "true"
