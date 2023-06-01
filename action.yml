@@ -60,8 +60,9 @@ inputs:
     required: false
     default: |
       .git
-      wp-debug.log
-      uploads/
+      /*.log
+      /uploads/
+      /upgrade/
       /vendor/**
       /auth.json
       /composer.json
