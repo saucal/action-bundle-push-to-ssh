@@ -132,7 +132,7 @@ runs:
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
-        pre-push-remote-command: ${{ steps.vars.outputs.core_update_cmd }}
+        pre-push-remote-command: ${{ steps.wpcore.outputs.core_update_cmd }}
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
