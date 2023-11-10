@@ -116,7 +116,7 @@ runs:
 
     - name: Deploy to SSH
       id: 'deploy-to-ssh'
-      uses: saucal/action-deploy-ssh@v2
+      uses: saucal/action-deploy-ssh@v3
       with:
         manifest: "${{ steps.manifest-load.outputs.manifest }}"
         env-host: ${{ inputs.env-host }}
