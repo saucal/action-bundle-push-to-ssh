@@ -96,6 +96,13 @@ runs:
       with:
         status: "Pushing to SSH :large_yellow_circle:"
 
+    - name: Check for WP Core version attribute
+      id: wpcore
+      shell: bash
+      run: |
+        cd "${{ inputs.source }}"
+        core_version=$(composer config extra.wordpress-core) && echo "core_version=$core_version" >> $GITHUB_OUTPUT
+
     - name: Define manifest to use
       if: "${{ inputs.disable-consistency-check != 'true' }}"
       id: manifest-load
@@ -123,6 +130,7 @@ runs:
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
+        pre-push-remote-command: ${{ steps.vars.outputs.core_version }} && "wp core update --version=${{ steps.vars.outputs.core_version }} --force --path=${{ inputs.env-remote-root }}"
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
