@@ -100,7 +100,7 @@ runs:
       id: wpcore
       shell: bash
       run: |
-        cd "${{ inputs.source }}"
+        cd "${{ inputs.built }}"
         core_version=$(composer config extra.wordpress-core) && echo "core_version=$core_version" >> $GITHUB_OUTPUT
 
     - name: Define manifest to use
