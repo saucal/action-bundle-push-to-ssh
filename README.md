@@ -77,6 +77,15 @@ jobs:
     # SSH Root to push to
     env-remote-root: ""
 
+    # SSH Flags to pass to the RSync command
+    ssh-flags: 'avrcz'
+
+    # Parameters to be passed to the SSH shell command
+    ssh-shell-params: ''
+
+    # Extra options for the RSync command
+    ssh-extra-options: 'delete no-inc-recursive size-only ignore-times omit-dir-times no-perms no-owner no-group no-dirs'
+
     # Forced .gitignore entries (appended at the end)
     force-ignore: |
       /auth.json
