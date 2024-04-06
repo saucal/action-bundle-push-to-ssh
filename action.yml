@@ -58,17 +58,7 @@ inputs:
   ssh-ignore:
     description: "Force ignore files"
     required: false
-    default: |
-      .git
-      /*.log
-      /uploads/
-      /upgrade/
-      /vendor/**
-      /auth.json
-      /composer.json
-      /composer.lock
-      /object-cache.php
-      /db.php
+    default: 'false'
   disable-consistency-check:
     description: Do not do a consistency check and complete the workflow regardless.
     required: false
