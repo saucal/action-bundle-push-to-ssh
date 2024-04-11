@@ -120,7 +120,7 @@ runs:
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
-        consistency-check: ${{ steps.build-to-git.outputs.has-prev-commit == 'false' && 'true' || '' }}
+        consistency-check: ${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && 'true' || '' }}
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
