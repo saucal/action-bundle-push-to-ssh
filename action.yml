@@ -93,18 +93,8 @@ runs:
       with:
         status: "Running initial consistency check :large_yellow_circle:"
 
-    - name: Debug
-      shell: bash
-      run: |
-        echo "Has commit: ${{ steps.build-to-git.outputs.has-prev-commit }}"
-        echo "Manifest: ${{ steps.build-to-git.outputs.manifest }}"
-        cat <<EOF
-        ${{ toJson( steps.build-to-git.outputs ) }}
-        EOF
-        exit 1
-
     - name: Define manifest to use
-      if: "${{ inputs.disable-consistency-check != 'true' }}"
+      if: "${{ inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'true' }}"
       id: manifest-load
       shell: bash
       run: |
@@ -130,6 +120,7 @@ runs:
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
+        consistency-check: ${{ steps.build-to-git.outputs.has-prev-commit == 'false' && 'true' || '' }}
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
