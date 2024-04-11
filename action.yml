@@ -114,7 +114,6 @@ runs:
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
-        action-pre-push: ${{ runner.temp }}/handle-wp-core-update.sh
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
