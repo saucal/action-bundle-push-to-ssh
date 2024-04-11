@@ -86,6 +86,9 @@ runs:
       run: |
         echo "Has commits: ${{ steps.build-to-git.outputs.has-commits }}"
         echo "Manifest: ${{ steps.build-to-git.outputs.manifest }}"
+        cat <<EOF
+        ${{ toJson( steps.build-to-git.outputs ) }}
+        EOF
         exit 1
 
     - name: Set message
