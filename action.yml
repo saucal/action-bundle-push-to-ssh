@@ -81,6 +81,13 @@ runs:
         defer-push: "true"
         force-ignore: ${{ inputs.force-ignore }}
 
+    - name: Debug
+      shell: bash
+      run: |
+        echo "Has commits: ${{ steps.build-to-git.outputs.has-commits }}"
+        echo "Manifest: ${{ steps.build-to-git.outputs.manifest }}"
+        exit 1
+
     - name: Set message
       uses: saucal/action-slack-notification@v1
       with:
