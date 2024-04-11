@@ -81,21 +81,27 @@ runs:
         defer-push: "true"
         force-ignore: ${{ inputs.force-ignore }}
 
+    - name: Set message
+      uses: saucal/action-slack-notification@v1
+      if: "${{ steps.build-to-git.outputs.has-prev-commit == 'true' }}"
+      with:
+        status: "Pushing to SSH :large_yellow_circle:"
+
+    - name: Set message
+      uses: saucal/action-slack-notification@v1
+      if: "${{ steps.build-to-git.outputs.has-prev-commit == 'false' }}"
+      with:
+        status: "Running initial consistency check :large_yellow_circle:"
+
     - name: Debug
       shell: bash
       run: |
-        echo "Has commit: ${{ steps.build-to-git.outputs.has-commit }}"
+        echo "Has commit: ${{ steps.build-to-git.outputs.has-prev-commit }}"
         echo "Manifest: ${{ steps.build-to-git.outputs.manifest }}"
         cat <<EOF
         ${{ toJson( steps.build-to-git.outputs ) }}
         EOF
         exit 1
-
-    - name: Set message
-      uses: saucal/action-slack-notification@v1
-      with:
-        status: "Pushing to SSH :large_yellow_circle:"
-
 
     - name: Define manifest to use
       if: "${{ inputs.disable-consistency-check != 'true' }}"
