@@ -84,7 +84,7 @@ runs:
     - name: Debug
       shell: bash
       run: |
-        echo "Has commits: ${{ steps.build-to-git.outputs.has-commits }}"
+        echo "Has commit: ${{ steps.build-to-git.outputs.has-commit }}"
         echo "Manifest: ${{ steps.build-to-git.outputs.manifest }}"
         cat <<EOF
         ${{ toJson( steps.build-to-git.outputs ) }}
