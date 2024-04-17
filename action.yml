@@ -122,6 +122,12 @@ runs:
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
         consistency-check: ${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && 'true' || '' }}
 
+    - name: Send details about SSH consistency
+      if: ${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && steps.deploy-to-ssh.outcome == 'failure' }}
+      uses: saucal/action-slack-notification@main
+      with:
+        data-file: ${{ steps.deploy-to-ssh.outputs.bufferPath }}
+
     - name: Set message
       uses: saucal/action-slack-notification@v1
       with:
