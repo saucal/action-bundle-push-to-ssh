@@ -93,15 +93,6 @@ runs:
       with:
         status: "Running initial consistency check :large_yellow_circle:"
 
-    - name: Debug
-      shell: bash
-      run: |
-        echo "DISABLE: ${{ inputs.disable-consistency-check }}";
-        echo "HAS_PREV_COMMIT: ${{ steps.build-to-git.outputs.has-prev-commit }}";
-        echo "DISABLE_NOT_TRUE: ${{ inputs.disable-consistency-check != 'true' }}";
-        echo "HAS_PREV_COMMIT_IS_TRUE: ${{ steps.build-to-git.outputs.has-prev-commit == 'true' }}";
-        echo "SHOULD_RUN: ${{ inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' }}";
-
     - name: Define manifest to use
       if: "${{ inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'true' }}"
       id: manifest-load
