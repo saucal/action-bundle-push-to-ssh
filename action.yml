@@ -45,6 +45,10 @@ inputs:
     description: "Extra options for the RSync command"
     required: false
     default: ''
+  ssh-handle-perms:
+    description: "Have RSync handle permissions of files strictly"
+    required: false
+    default: 'false'
   force-ignore:
     description: "Force ignore files"
     required: false
@@ -80,6 +84,7 @@ runs:
         path: ${{ inputs.built }}
         defer-push: "true"
         force-ignore: ${{ inputs.force-ignore }}
+        strict-perms: ${{ inputs.ssh-handle-perms }}
 
     - name: Set message
       uses: saucal/action-slack-notification@v1
@@ -109,6 +114,7 @@ runs:
         ssh-flags: ${{ inputs.ssh-flags }}
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
+        ssh-handle-perms: ${{ inputs.ssh-handle-perms }}
         consistency-check: ${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && 'true' || '' }}
 
     - name: Send details about SSH consistency
