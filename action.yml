@@ -93,22 +93,11 @@ runs:
       with:
         status: "Running initial consistency check :large_yellow_circle:"
 
-    - name: Define manifest to use
-      if: "${{ inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'true' }}"
-      id: manifest-load
-      shell: bash
-      run: |
-        {
-          echo 'manifest<<EOF_MANIFEST'
-          echo "${{ steps.build-to-git.outputs.manifest }}"
-          echo 'EOF_MANIFEST'
-        } >> $GITHUB_OUTPUT
-
     - name: Deploy to SSH
       id: 'deploy-to-ssh'
       uses: saucal/action-deploy-ssh@v4
       with:
-        manifest: "${{ steps.manifest-load.outputs.manifest }}"
+        manifest: "${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'true' ) && steps.build-to-git.outputs.manifest || '' }}"
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
         env-user: ${{ inputs.env-user }}
