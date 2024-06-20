@@ -147,19 +147,19 @@ runs:
       run: |
         INPUT_FLUSH_CACHE="${{ inputs.flush-cache }}"
         if [ "${INPUT_FLUSH_CACHE}" != 'false' ]; then
-          echo "do-flush=true" > $GITHUB_OUTPUT
+          echo "do-flush=true" >> $GITHUB_OUTPUT
           if [ "${INPUT_FLUSH_CACHE}" == 'true' ]; then
-            echo "flush-type=default" > $GITHUB_OUTPUT
+            echo "flush-type=default" >> $GITHUB_OUTPUT
           elif [ "${INPUT_FLUSH_CACHE}" == 'auto' ]; then
             # maybe attempt to detect flush type
             # would need insshetion to run some commands through ssh maybe
             # turn into default for the time being, so it doesn't do anything
-            echo "flush-type=default" > $GITHUB_OUTPUT
+            echo "flush-type=default" >> $GITHUB_OUTPUT
           else
-            echo "flush-type=${INPUT_FLUSH_CACHE}" > $GITHUB_OUTPUT
+            echo "flush-type=${INPUT_FLUSH_CACHE}" >> $GITHUB_OUTPUT
           fi
         else
-          echo "do-flush=false" > $GITHUB_OUTPUT
+          echo "do-flush=false" >> $GITHUB_OUTPUT
         fi
 
     - name: Flush cache
