@@ -78,13 +78,13 @@ jobs:
     env-remote-root: ""
 
     # SSH Flags to pass to the RSync command
-    ssh-flags: 'avrcz'
+    ssh-flags: "avrcz"
 
     # Parameters to be passed to the SSH shell command
-    ssh-shell-params: ''
+    ssh-shell-params: ""
 
     # Extra options for the RSync command
-    ssh-extra-options: 'delete no-inc-recursive size-only ignore-times omit-dir-times no-owner no-group no-dirs'
+    ssh-extra-options: "delete no-inc-recursive size-only ignore-times omit-dir-times no-owner no-group no-dirs"
 
     # Have RSync handle permissions of files strictly.
     # If set to true, filemode will be considered when using rsync
