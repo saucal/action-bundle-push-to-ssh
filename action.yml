@@ -68,6 +68,16 @@ inputs:
     required: false
     default: ''
 
+  flush-cache:
+    description: "Flush cache after deployment"
+    required: false
+    default: 'false'
+
+  flush-cache-extra-params:
+    description: "Flush cache parameters. This is depending on the flush-cache setup."
+    required: false
+    default: ''
+
 runs:
   using: "composite"
   steps:
@@ -116,6 +126,44 @@ runs:
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
         ssh-handle-perms: ${{ inputs.ssh-handle-perms }}
         consistency-check: ${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && 'true' || '' }}
+
+    - name: Prepare flush cache
+      id: 'flush-cache-prepare'
+      shell: bash
+      run: |
+        INPUT_FLUSH_CACHE="${{ inputs.flush-cache }}"
+        if [ "${INPUT_FLUSH_CACHE}" != 'false' ]; then
+          echo "do-flush=true" > $GITHUB_OUTPUT
+          if [ "${INPUT_FLUSH_CACHE}" == 'true' ]; then
+            echo "flush-type=default" > $GITHUB_OUTPUT
+          elif [ "${INPUT_FLUSH_CACHE}" == 'auto' ]; then
+            # maybe attempt to detect flush type
+            # would need insshetion to run some commands through ssh maybe
+            # turn into default for the time being, so it doesn't do anything
+            echo "flush-type=default" > $GITHUB_OUTPUT
+          else
+            echo "flush-type=${INPUT_FLUSH_CACHE}" > $GITHUB_OUTPUT
+          fi
+        else
+          echo "do-flush=false" > $GITHUB_OUTPUT
+        fi
+
+    - name: Flush cache
+      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' }}
+      id: 'flush-cache'
+      working-directory: ${{ github.workspace }}/${{ inputs.built }}
+      shell: bash
+      run: |
+        INPUT_FLUSH_CACHE="${{ steps.flush-cache-prepare.outputs.do-flush }}"
+        INPUT_FLUSH_CACHE_TYPE="${{ steps.flush-cache-prepare.outputs.flush-type }}"
+        INPUT_FLUSH_CACHE_EXTRA_PARAMS="${{ inputs.flush-cache-extra-params }}"
+        echo "Flushing cache with type: ${INPUT_FLUSH_CACHE_TYPE}"
+        if [ "${INPUT_FLUSH_CACHE_TYPE}" == 'convesio' ]; then
+          curl -f -I -X POST $(composer config homepage)'/wp-json/convesio-caching/v1/${INPUT_FLUSH_CACHE_EXTRA_PARAMS}/purge' || exit 1
+        else
+          echo "By default, we're not flushing cache, as we don't know how to do it in a generic way"
+        fi
+        echo "Flushed cache"
 
     - name: Send details about SSH consistency
       if: ${{ always() && ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && steps.deploy-to-ssh.outcome == 'failure' }}
