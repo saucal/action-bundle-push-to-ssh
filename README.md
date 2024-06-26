@@ -78,13 +78,18 @@ jobs:
     env-remote-root: ""
 
     # SSH Flags to pass to the RSync command
-    ssh-flags: 'avrcz'
+    ssh-flags: "avrcz"
 
     # Parameters to be passed to the SSH shell command
-    ssh-shell-params: ''
+    ssh-shell-params: ""
 
     # Extra options for the RSync command
-    ssh-extra-options: 'delete no-inc-recursive size-only ignore-times omit-dir-times no-perms no-owner no-group no-dirs'
+    ssh-extra-options: "delete no-inc-recursive size-only ignore-times omit-dir-times no-owner no-group no-dirs"
+
+    # Have RSync handle permissions of files strictly.
+    # If set to true, filemode will be considered when using rsync
+    # If false (default), only content changes will be considered when deploying 
+    ssh-handle-perms: "false"
 
     # Forced .gitignore entries (appended at the end)
     force-ignore: |
@@ -95,18 +100,21 @@ jobs:
       !/vendor/composer/installers
       !/vendor/composer/installed.json
 
-    # Ignore rules. Each line will generate an extra --exclude=... parameter for rsync.
-    ssh-ignore: |
-      .git
-      wp-debug.log
-      uploads/
-      /vendor/**
-      /auth.json
-      /composer.json
-      /composer.lock
-      /object-cache.php
-      /db.php
+    # Ignore rules. Each line will generate an extra --exclude=... parameter for rsync, 
+    # If set to false, it'll default to https://github.com/saucal/action-deploy-ssh/blob/v4/default-ignore.txt
+    ssh-ignore: "false"
 
     # Wether to not do a consistency check and complete the workflow regardless. [true|false]
     disable-consistency-check: ""
+
+    # Wether to perform a cache flush after a successful deployment.
+    # Supported options are, false, true, auto (unimplemented yet), or a custom string mapping to a host.
+    #
+    # Custom hosts currently supported: convesio
+    flush-cache: "false"
+
+    # Some extra parameters to be sent to the flush type.
+    # 
+    # Currently used for convesio, and the cache clear key should be used here.
+    flush-cache-extra-params: ""
 ```
