@@ -152,7 +152,7 @@ runs:
       if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' }}
       id: 'flush-cache'
       working-directory: ${{ github.workspace }}/${{ inputs.built }}
-      shell: bash
+      shell: bash {0}
       run: |
         INPUT_FLUSH_CACHE="${{ steps.flush-cache-prepare.outputs.do-flush }}"
         INPUT_FLUSH_CACHE_TYPE="${{ steps.flush-cache-prepare.outputs.flush-type }}"
