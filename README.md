@@ -115,6 +115,6 @@ jobs:
 
     # Some extra parameters to be sent to the flush type.
     # 
-    # Currently used for convesio, and the cache clear key should be used here.
+    # Currently used for convesio, and the cache clear full URL should be used here.
     flush-cache-extra-params: ""
 ```
