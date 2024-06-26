@@ -157,13 +157,23 @@ runs:
         INPUT_FLUSH_CACHE="${{ steps.flush-cache-prepare.outputs.do-flush }}"
         INPUT_FLUSH_CACHE_TYPE="${{ steps.flush-cache-prepare.outputs.flush-type }}"
         INPUT_FLUSH_CACHE_EXTRA_PARAMS="${{ inputs.flush-cache-extra-params }}"
-        echo "Flushing cache with type: ${INPUT_FLUSH_CACHE_TYPE}"
+        echo "::group::Flushing cache with type: ${INPUT_FLUSH_CACHE_TYPE}"
+
+        exitcode=0
         if [ "${INPUT_FLUSH_CACHE_TYPE}" == 'convesio' ]; then
-          curl -f -I -X POST $(composer config homepage)'/wp-json/convesio-caching/v1/${INPUT_FLUSH_CACHE_EXTRA_PARAMS}/purge' || exit 1
+          echo "Running command: " curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}"
+          echo ""
+          curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}" || exitcode=$?
         else
           echo "By default, we're not flushing cache, as we don't know how to do it in a generic way"
         fi
-        echo "Flushed cache"
+        echo "::endgroup::"
+        if [ $exitcode -ne 0 ]; then
+          echo ""
+          echo "::warning title:Flush cache failed::Failed to flush cache"
+        else
+          echo "Flushed cache"
+        fi
 
     - name: Send details about SSH consistency
       if: ${{ always() && ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && steps.deploy-to-ssh.outcome == 'failure' }}
