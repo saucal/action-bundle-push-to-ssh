@@ -82,6 +82,11 @@ inputs:
     required: false
     default: ''
 
+  provider-api-key:
+    description: "API Key for the cache flush"
+    required: false
+    default: ''
+
 runs:
   using: "composite"
   steps:
@@ -169,6 +174,10 @@ runs:
           echo "Running command: " curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}"
           echo ""
           curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}" || exitcode=$?
+        elseif [ "${INPUT_FLUSH_CACHE_TYPE}" == 'kinsta' ]; then
+          echo "Running command: " curl -s -f -I -X POST 'https://api.kinsta.com/v2/applications/${INPUT_FLUSH_CACHE_EXTRA_PARAMS}/clear-cache'
+          echo ""
+          curl -s -f -I -X POST 'https://api.kinsta.com/v2/applications/${INPUT_FLUSH_CACHE_EXTRA_PARAMS}/clear-cache' -H 'Authorization: Bearer ${{ inputs.provider-api-key }}' || exit 1
         else
           echo "By default, we're not flushing cache, as we don't know how to do it in a generic way"
         fi
