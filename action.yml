@@ -82,11 +82,6 @@ inputs:
     required: false
     default: ''
 
-  provider-api-key:
-    description: "API Key for the cache flush"
-    required: false
-    default: ''
-
 runs:
   using: "composite"
   steps:
