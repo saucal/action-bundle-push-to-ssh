@@ -174,10 +174,6 @@ runs:
           echo "Running command: " curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}"
           echo ""
           curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}" || exitcode=$?
-        elseif [ "${INPUT_FLUSH_CACHE_TYPE}" == 'kinsta' ]; then
-          echo "Running command: " curl -s -f -I -X POST 'https://api.kinsta.com/v2/applications/${INPUT_FLUSH_CACHE_EXTRA_PARAMS}/clear-cache'
-          echo ""
-          curl -s -f -I -X POST 'https://api.kinsta.com/v2/applications/${INPUT_FLUSH_CACHE_EXTRA_PARAMS}/clear-cache' -H 'Authorization: Bearer ${{ inputs.provider-api-key }}' || exit 1
         else
           echo "By default, we're not flushing cache, as we don't know how to do it in a generic way"
         fi
@@ -188,6 +184,19 @@ runs:
         else
           echo "Flushed cache"
         fi
+
+    - name: Kinsta cache flush # https://kinsta.com/docs/wordpress-hosting/site-management/wordpress-wp-cli/#clear-the-full-page-cache-and-edge-cache
+      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' }} && ${{ steps.flush-cache-prepare.outputs.flush-type == 'kinsta' }}
+      uses: saucal/action-inssheption@feature/quoted-args
+      with:
+        GH_TOKEN:            ${{ secrets.CI_BOT_TOKEN || secrets.github_token }}
+        TARGET_SSH_HOST:     ${{ secrets[ format( '{0}_SSH_HOST', env.TARGET_ENV ) ] || vars[ format( '{0}_SSH_HOST', env.TARGET_ENV ) ] }}
+        TARGET_SSH_USER:     ${{ secrets[ format( '{0}_SSH_USER', env.TARGET_ENV ) ] || vars[ format( '{0}_SSH_USER', env.TARGET_ENV ) ] }}
+        TARGET_SSH_KEY:      ${{ secrets[ format( '{0}_SSH_KEY', env.TARGET_ENV ) ] || '' }}
+        TARGET_SSH_PASS:     ${{ secrets[ format( '{0}_SSH_PASS', env.TARGET_ENV ) ] || '' }}
+        TARGET_SSH_PORT:     ${{ secrets[ format( '{0}_SSH_PORT', env.TARGET_ENV ) ] || vars[ format( '{0}_SSH_PORT', env.TARGET_ENV ) ] || 22 }}
+        TARGET_SSH_PATH_DIR: ${{ secrets[ format( '{0}_REMOTE_ROOT', env.TARGET_ENV ) ] || vars[ format( '{0}_REMOTE_ROOT', env.TARGET_ENV ) ] }}
+        EXTRA_SCRIPT_ARGS:   -c "rcli kinsta cache purge"
 
     - name: Send details about SSH consistency
       if: ${{ always() && ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && steps.deploy-to-ssh.outcome == 'failure' }}
