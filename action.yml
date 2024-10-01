@@ -82,6 +82,11 @@ inputs:
     required: false
     default: ''
 
+  git-token:
+    description: "Git Token"
+    required: false
+    default: ''
+
 runs:
   using: "composite"
   steps:
@@ -184,13 +189,13 @@ runs:
       if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' }} && ${{ steps.flush-cache-prepare.outputs.flush-type == 'kinsta' }}
       uses: saucal/action-inssheption@feature/quoted-args
       with:
-        GH_TOKEN:            ${{ secrets.CI_BOT_TOKEN || secrets.github_token }}
-        TARGET_SSH_HOST:     ${{ secrets[ format( '{0}_SSH_HOST', env.TARGET_ENV ) ] || vars[ format( '{0}_SSH_HOST', env.TARGET_ENV ) ] }}
-        TARGET_SSH_USER:     ${{ secrets[ format( '{0}_SSH_USER', env.TARGET_ENV ) ] || vars[ format( '{0}_SSH_USER', env.TARGET_ENV ) ] }}
-        TARGET_SSH_KEY:      ${{ secrets[ format( '{0}_SSH_KEY', env.TARGET_ENV ) ] || '' }}
-        TARGET_SSH_PASS:     ${{ secrets[ format( '{0}_SSH_PASS', env.TARGET_ENV ) ] || '' }}
-        TARGET_SSH_PORT:     ${{ secrets[ format( '{0}_SSH_PORT', env.TARGET_ENV ) ] || vars[ format( '{0}_SSH_PORT', env.TARGET_ENV ) ] || 22 }}
-        TARGET_SSH_PATH_DIR: ${{ secrets[ format( '{0}_REMOTE_ROOT', env.TARGET_ENV ) ] || vars[ format( '{0}_REMOTE_ROOT', env.TARGET_ENV ) ] }}
+        GH_TOKEN:            ${{ inputs.git-token }}
+        TARGET_SSH_HOST:     ${{ inputs.env-host }}
+        TARGET_SSH_USER:     ${{ inputs.env-user }}
+        TARGET_SSH_KEY:      ${{ inputs.env-key }}
+        TARGET_SSH_PASS:     ${{ inputs.env-pass }}
+        TARGET_SSH_PORT:     ${{ inputs.env-port }}
+        TARGET_SSH_PATH_DIR: ${{ inputs.env-remote-root }}
         EXTRA_SCRIPT_ARGS:   -c "rcli kinsta cache purge"
 
     - name: Send details about SSH consistency
