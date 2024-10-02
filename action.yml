@@ -196,7 +196,7 @@ runs:
         TARGET_SSH_PASS:     ${{ inputs.env-pass }}
         TARGET_SSH_PORT:     ${{ inputs.env-port }}
         TARGET_SSH_PATH_DIR: ${{ inputs.env-remote-root }}
-        EXTRA_SCRIPT_ARGS:   -c "rcli kinsta cache purge"
+        EXTRA_SCRIPT_ARGS:   -c "notice 'Flusing Kinsta cache'" -c "rcli kinsta cache purge"
 
     - name: WPE cache flush
       if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' }} && ${{ steps.flush-cache-prepare.outputs.flush-type == 'wpe' }}
@@ -209,7 +209,7 @@ runs:
         TARGET_SSH_PASS:     ${{ inputs.env-pass }}
         TARGET_SSH_PORT:     ${{ inputs.env-port }}
         TARGET_SSH_PATH_DIR: ${{ inputs.env-remote-root }}
-        EXTRA_SCRIPT_ARGS:   -c "rcli cdn-cache flush"
+        EXTRA_SCRIPT_ARGS:   -c "notice 'Flusing WPE cache'" -c "rcli cdn-cache flush"
 
     - name: Send details about SSH consistency
       if: ${{ always() && ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && steps.deploy-to-ssh.outcome == 'failure' }}
