@@ -187,7 +187,7 @@ runs:
 
     - name: Kinsta cache flush # https://kinsta.com/docs/wordpress-hosting/site-management/wordpress-wp-cli/#clear-the-full-page-cache-and-edge-cache
       if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' }} && ${{ steps.flush-cache-prepare.outputs.flush-type == 'kinsta' }}
-      uses: saucal/action-inssheption@feature/quoted-args
+      uses: saucal/action-inssheption@v2
       with:
         GH_TOKEN:            ${{ inputs.git-token }}
         TARGET_SSH_HOST:     ${{ inputs.env-host }}
