@@ -186,7 +186,7 @@ runs:
         fi
 
     - name: Kinsta cache flush # https://kinsta.com/docs/wordpress-hosting/site-management/wordpress-wp-cli/#clear-the-full-page-cache-and-edge-cache
-      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && steps.flush-cache-prepare.outputs.flush-type == 'kinsta' }}
+      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && contains( steps.flush-cache-prepare.outputs.flush-type, 'kinsta' ) }}
       uses: saucal/action-inssheption@v2
       with:
         GH_TOKEN:            ${{ inputs.git-token }}
@@ -199,7 +199,7 @@ runs:
         EXTRA_SCRIPT_ARGS:   -c "notice 'Flushing Kinsta cache'" -c "rcli kinsta cache purge"
 
     - name: WPE cache flush
-      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && steps.flush-cache-prepare.outputs.flush-type == 'wpe' }}
+      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && contains( steps.flush-cache-prepare.outputs.flush-type, 'wpe' ) }}
       uses: saucal/action-inssheption@v2
       with:
         GH_TOKEN:            ${{ inputs.git-token }}
@@ -212,7 +212,7 @@ runs:
         EXTRA_SCRIPT_ARGS:   -c "notice 'Flushing WPE cache'" -c "rcli cdn-cache flush"
     
     - name: Object Cache flush
-      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && steps.flush-cache-prepare.outputs.flush-type == 'oc' }}
+      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && contains( steps.flush-cache-prepare.outputs.flush-type, 'oc' ) }}
       uses: saucal/action-inssheption@v2
       with:
         GH_TOKEN:            ${{ inputs.git-token }}
