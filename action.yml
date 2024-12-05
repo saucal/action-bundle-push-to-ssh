@@ -212,7 +212,7 @@ runs:
         EXTRA_SCRIPT_ARGS:   -c "notice 'Flushing WPE cache'" -c "rcli cdn-cache flush"
     
     - name: Object Cache flush
-      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && contains( steps.flush-cache-prepare.outputs.flush-type, 'oc' ) }}
+      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && contains( steps.flush-cache-prepare.outputs.flush-type, 'objectcache' ) }}
       uses: saucal/action-inssheption@v2
       with:
         GH_TOKEN:            ${{ inputs.git-token }}
