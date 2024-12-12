@@ -97,7 +97,7 @@ runs:
 
     - name: Build To GIT
       id: 'build-to-git'
-      uses: saucal/action-build-to-git@v2
+      uses: saucal/action-build-to-git@v1
       with:
         from: ${{ inputs.source }}
         path: ${{ inputs.built }}
