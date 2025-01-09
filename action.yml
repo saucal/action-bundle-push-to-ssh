@@ -224,6 +224,19 @@ runs:
         TARGET_SSH_PATH_DIR: ${{ inputs.env-remote-root }}
         EXTRA_SCRIPT_ARGS:   -c "notice 'Flushing object cache'" -c "rcli cache flush"
 
+    - name: WP Rocket Cache flush # requires wp-rocket cli package https://docs.wp-rocket.me/article/1497-wp-cli-interface-for-wp-rocket
+      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && contains( steps.flush-cache-prepare.outputs.flush-type, 'wprocket' ) }}
+      uses: saucal/action-inssheption@v2
+      with:
+        GH_TOKEN:            ${{ inputs.git-token }}
+        TARGET_SSH_HOST:     ${{ inputs.env-host }}
+        TARGET_SSH_USER:     ${{ inputs.env-user }}
+        TARGET_SSH_KEY:      ${{ inputs.env-key }}
+        TARGET_SSH_PASS:     ${{ inputs.env-pass }}
+        TARGET_SSH_PORT:     ${{ inputs.env-port }}
+        TARGET_SSH_PATH_DIR: ${{ inputs.env-remote-root }}
+        EXTRA_SCRIPT_ARGS:   -c "notice 'Flushing WP Rocket cache'" -c "rcli rocket clean --confirm"
+
     - name: Send details about SSH consistency
       if: ${{ always() && ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && steps.deploy-to-ssh.outcome == 'failure' }}
       uses: saucal/action-slack-notification@main

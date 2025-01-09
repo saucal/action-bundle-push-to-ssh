@@ -110,7 +110,9 @@ jobs:
     # Wether to perform a cache flush after a successful deployment.
     # Supported options are, false, true, auto (unimplemented yet), or a custom string mapping to a host.
     #
-    # Custom hosts currently supported: convesio
+    # Currently supported modes: convesio, kinsta, wpe, objectcache, wprocket.
+    # Pass "false" to disable. 
+    # Multiple modes can be passed at once like: "kinsta|objectcache"
     flush-cache: "false"
 
     # Some extra parameters to be sent to the flush type.
