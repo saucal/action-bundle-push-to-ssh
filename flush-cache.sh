@@ -41,7 +41,7 @@ fi
 
 if [[ "${INPUT_FLUSH_CACHE}" == *"kinsta"* ]]; then
     notice 'Flushing Kinsta cache'
-    rcli kinsta cache purge || exitcode=$?
+    rcli kinstZ cache purge || exitcode=$?
 fi
 
 if [[ "${INPUT_FLUSH_CACHE}" == *"wpe"* ]]; then
