@@ -1,5 +1,30 @@
 #!/bin/bash
 
+POSITIONAL_ARGS=()
+INPUT_FLUSH_CACHE=""
+INPUT_FLUSH_CACHE_EXTRA_PARAMS=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --flush-cache)
+            INPUT_FLUSH_CACHE="$2"
+            shift # past argument
+            shift # past argument
+            ;;
+        --flush-cache-extra-params)
+            INPUT_FLUSH_CACHE_EXTRA_PARAMS="$2"
+            shift # past argument
+            shift # past argument
+            ;;
+        *)
+            POSITIONAL_ARGS+=("$1") # save positional arg
+            shift # past argument
+            ;;
+    esac
+done
+
+set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
+
 echo "::group::Flushing cache"
 
 if [ "${INPUT_FLUSH_CACHE}" == 'auto' ] || [ "${INPUT_FLUSH_CACHE}" == 'default' ]; then
