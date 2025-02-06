@@ -138,7 +138,7 @@ runs:
         consistency-check: ${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && 'true' || '' }}
 
     - name: Flush cache
-      if: ${{ inputs.flush-cache != 'true' }}
+      if: ${{ inputs.flush-cache != 'false' }}
       uses: saucal/action-inssheption@v2
       with:
         GH_TOKEN:            ${{ inputs.git-token }}
