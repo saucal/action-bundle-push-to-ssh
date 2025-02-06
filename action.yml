@@ -75,7 +75,7 @@ inputs:
   flush-cache:
     description: "Flush cache after deployment"
     required: false
-    default: 'false'
+    default: 'auto'
 
   flush-cache-extra-params:
     description: "Flush cache parameters. This is depending on the flush-cache setup."
