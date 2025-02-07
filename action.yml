@@ -75,7 +75,7 @@ inputs:
   flush-cache:
     description: "Flush cache after deployment"
     required: false
-    default: 'false'
+    default: 'auto'
 
   flush-cache-extra-params:
     description: "Flush cache parameters. This is depending on the flush-cache setup."
@@ -137,56 +137,8 @@ runs:
         ssh-handle-perms: ${{ inputs.ssh-handle-perms }}
         consistency-check: ${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && 'true' || '' }}
 
-    - name: Prepare flush cache
-      id: 'flush-cache-prepare'
-      shell: bash
-      run: |
-        INPUT_FLUSH_CACHE="${{ inputs.flush-cache }}"
-        if [ "${INPUT_FLUSH_CACHE}" != 'false' ]; then
-          echo "do-flush=true" >> $GITHUB_OUTPUT
-          if [ "${INPUT_FLUSH_CACHE}" == 'true' ]; then
-            echo "flush-type=default" >> $GITHUB_OUTPUT
-          elif [ "${INPUT_FLUSH_CACHE}" == 'auto' ]; then
-            # maybe attempt to detect flush type
-            # would need insshetion to run some commands through ssh maybe
-            # turn into default for the time being, so it doesn't do anything
-            echo "flush-type=default" >> $GITHUB_OUTPUT
-          else
-            echo "flush-type=${INPUT_FLUSH_CACHE}" >> $GITHUB_OUTPUT
-          fi
-        else
-          echo "do-flush=false" >> $GITHUB_OUTPUT
-        fi
-
     - name: Flush cache
-      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' }}
-      id: 'flush-cache'
-      working-directory: ${{ github.workspace }}/${{ inputs.built }}
-      shell: bash {0}
-      run: |
-        INPUT_FLUSH_CACHE="${{ steps.flush-cache-prepare.outputs.do-flush }}"
-        INPUT_FLUSH_CACHE_TYPE="${{ steps.flush-cache-prepare.outputs.flush-type }}"
-        INPUT_FLUSH_CACHE_EXTRA_PARAMS="${{ inputs.flush-cache-extra-params }}"
-        echo "::group::Flushing cache with type: ${INPUT_FLUSH_CACHE_TYPE}"
-
-        exitcode=0
-        if [ "${INPUT_FLUSH_CACHE_TYPE}" == 'convesio' ]; then
-          echo "Running command: " curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}"
-          echo ""
-          curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}" || exitcode=$?
-        else
-          echo "By default, we're not flushing cache, as we don't know how to do it in a generic way"
-        fi
-        echo "::endgroup::"
-        if [ $exitcode -ne 0 ]; then
-          echo ""
-          echo "::warning title:Flush cache failed::Failed to flush cache"
-        else
-          echo "Flushed cache"
-        fi
-
-    - name: Kinsta cache flush # https://kinsta.com/docs/wordpress-hosting/site-management/wordpress-wp-cli/#clear-the-full-page-cache-and-edge-cache
-      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && contains( steps.flush-cache-prepare.outputs.flush-type, 'kinsta' ) }}
+      if: ${{ inputs.flush-cache != 'false' }}
       uses: saucal/action-inssheption@v2
       with:
         GH_TOKEN:            ${{ inputs.git-token }}
@@ -196,46 +148,8 @@ runs:
         TARGET_SSH_PASS:     ${{ inputs.env-pass }}
         TARGET_SSH_PORT:     ${{ inputs.env-port }}
         TARGET_SSH_PATH_DIR: ${{ inputs.env-remote-root }}
-        EXTRA_SCRIPT_ARGS:   -c "notice 'Flushing Kinsta cache'" -c "rcli kinsta cache purge"
-
-    - name: WPE cache flush
-      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && contains( steps.flush-cache-prepare.outputs.flush-type, 'wpe' ) }}
-      uses: saucal/action-inssheption@v2
-      with:
-        GH_TOKEN:            ${{ inputs.git-token }}
-        TARGET_SSH_HOST:     ${{ inputs.env-host }}
-        TARGET_SSH_USER:     ${{ inputs.env-user }}
-        TARGET_SSH_KEY:      ${{ inputs.env-key }}
-        TARGET_SSH_PASS:     ${{ inputs.env-pass }}
-        TARGET_SSH_PORT:     ${{ inputs.env-port }}
-        TARGET_SSH_PATH_DIR: ${{ inputs.env-remote-root }}
-        EXTRA_SCRIPT_ARGS:   -c "notice 'Flushing WPE cache'" -c "rcli cdn-cache flush"
-    
-    - name: Object Cache flush
-      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && contains( steps.flush-cache-prepare.outputs.flush-type, 'objectcache' ) }}
-      uses: saucal/action-inssheption@v2
-      with:
-        GH_TOKEN:            ${{ inputs.git-token }}
-        TARGET_SSH_HOST:     ${{ inputs.env-host }}
-        TARGET_SSH_USER:     ${{ inputs.env-user }}
-        TARGET_SSH_KEY:      ${{ inputs.env-key }}
-        TARGET_SSH_PASS:     ${{ inputs.env-pass }}
-        TARGET_SSH_PORT:     ${{ inputs.env-port }}
-        TARGET_SSH_PATH_DIR: ${{ inputs.env-remote-root }}
-        EXTRA_SCRIPT_ARGS:   -c "notice 'Flushing object cache'" -c "rcli cache flush"
-
-    - name: WP Rocket Cache flush # requires wp-rocket cli package https://docs.wp-rocket.me/article/1497-wp-cli-interface-for-wp-rocket
-      if: ${{ steps.flush-cache-prepare.outputs.do-flush == 'true' && contains( steps.flush-cache-prepare.outputs.flush-type, 'wprocket' ) }}
-      uses: saucal/action-inssheption@v2
-      with:
-        GH_TOKEN:            ${{ inputs.git-token }}
-        TARGET_SSH_HOST:     ${{ inputs.env-host }}
-        TARGET_SSH_USER:     ${{ inputs.env-user }}
-        TARGET_SSH_KEY:      ${{ inputs.env-key }}
-        TARGET_SSH_PASS:     ${{ inputs.env-pass }}
-        TARGET_SSH_PORT:     ${{ inputs.env-port }}
-        TARGET_SSH_PATH_DIR: ${{ inputs.env-remote-root }}
-        EXTRA_SCRIPT_ARGS:   -c "notice 'Flushing WP Rocket cache'" -c "rcli rocket clean --confirm"
+        INSSHEPTION_SCRIPT:  ${{ github.action_path }}/flush-cache.sh
+        EXTRA_SCRIPT_ARGS:   "--flush-cache ${{ inputs.flush-cache }} --flush-cache-extra-params ${{ inputs.flush-cache-extra-params }}"
 
     - name: Send details about SSH consistency
       if: ${{ always() && ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && steps.deploy-to-ssh.outcome == 'failure' }}
