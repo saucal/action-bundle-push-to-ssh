@@ -157,6 +157,20 @@ runs:
       with:
         data-file: ${{ steps.deploy-to-ssh.outputs.bufferPath }}
 
+    - name: Upload details about SSH consistency
+      uses: actions/upload-artifact@v4
+      if: ${{ always() && steps.deploy-to-ssh.outputs.bufferPath }}
+      with:
+        name: consistency-check-file
+        path: ${{ steps.deploy-to-ssh.outputs.bufferPath }}
+        
+    - name: Upload diff about SSH consistency
+      uses: actions/upload-artifact@v4
+      if: ${{ always() && steps.deploy-to-ssh.outputs.diffPath }}
+      with:
+        name: consistency-diff-file
+        path: ${{ steps.deploy-to-ssh.outputs.diffPath }}
+
     - name: Set message
       uses: saucal/action-slack-notification@v1
       with:
