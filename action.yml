@@ -123,7 +123,7 @@ runs:
 
     - name: Deploy to SSH
       id: 'deploy-to-ssh'
-      uses: saucal/action-deploy-ssh@v4
+      uses: saucal/action-deploy-ssh@qa
       with:
         manifest: "${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'true' ) && steps.build-to-git.outputs.manifest || '' }}"
         env-host: ${{ inputs.env-host }}
