@@ -12,7 +12,7 @@ run_command() {
     fi
 
     # Execute the command remotely
-    eval "$SSH_COMMAND cd ${REMOTE_ROOT} && '$command'"
+    eval "$SSH_COMMAND '$command'"
     return $?
 }
 
@@ -31,33 +31,33 @@ fi
 exitcode=0
 
 if [[ "${INPUT_FLUSH_CACHE}" == *"convesio"* ]]; then
-    notice "Running command: " curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}"
+    echo "Running command: " curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}"
     curl -s -f -I -X POST "${INPUT_FLUSH_CACHE_EXTRA_PARAMS}" || exitcode=$?
 fi
 
-if [[ "${INPUT_FLUSH_CACHE}" == *"kinsta"* ]] || ([[ "${INPUT_FLUSH_CACHE}" == "auto" ]] && run_command wp cli has-command "kinsta cache purge"); then
-    notice 'Flushing Kinsta cache'
-    run_command wp kinsta cache purge || exitcode=$?
+if [[ "${INPUT_FLUSH_CACHE}" == *"kinsta"* ]] || ([[ "${INPUT_FLUSH_CACHE}" == "auto" ]] && run_command "cd ${REMOTE_ROOT} && wp cli has-command \"kinsta cache purge\""); then
+    echo 'Flushing Kinsta cache'
+    run_command "cd ${REMOTE_ROOT} && wp kinsta cache purge" || exitcode=$?
 fi
 
-if [[ "${INPUT_FLUSH_CACHE}" == *"wpe"* ]] || ([[ "${INPUT_FLUSH_CACHE}" == "auto" ]] && run_command wp cli has-command "cdn-cache flush"); then
-    notice 'Flushing WPE cache'
-    run_command wp cdn-cache flush || exitcode=$?
+if [[ "${INPUT_FLUSH_CACHE}" == *"wpe"* ]] || ([[ "${INPUT_FLUSH_CACHE}" == "auto" ]] && run_command "cd ${REMOTE_ROOT} && wp cli has-command \"cdn-cache flush\""); then
+    echo 'Flushing WPE cache'
+    run_command "cd ${REMOTE_ROOT} && wp cdn-cache flush" || exitcode=$?
 fi
 
-if [[ "${INPUT_FLUSH_CACHE}" == *"wpe"* ]] || ([[ "${INPUT_FLUSH_CACHE}" == "auto" ]] && run_command wp cli has-command "nexcess-mapps cache flush"); then
-    notice 'Flushing NEXCESS cache'
-    run_command wp nexcess-mapps cache flush --all || exitcode=$?
+if [[ "${INPUT_FLUSH_CACHE}" == *"wpe"* ]] || ([[ "${INPUT_FLUSH_CACHE}" == "auto" ]] && run_command "cd ${REMOTE_ROOT} && wp cli has-command \"nexcess-mapps cache flush\""); then
+    echo 'Flushing NEXCESS cache'
+    run_command "cd ${REMOTE_ROOT} && wp nexcess-mapps cache flush --all" || exitcode=$?
 fi
 
-if [[ "${INPUT_FLUSH_CACHE}" == *"wprocket"* ]] || ([[ "${INPUT_FLUSH_CACHE}" == "auto" ]] && run_command wp cli has-command "rocket clean"); then
-    notice 'Flushing WP Rocket cache'
-    run_command wp rocket clean --confirm || exitcode=$?
+if [[ "${INPUT_FLUSH_CACHE}" == *"wprocket"* ]] || ([[ "${INPUT_FLUSH_CACHE}" == "auto" ]] && run_command "cd ${REMOTE_ROOT} && wp cli has-command \"rocket clean\""); then
+    echo 'Flushing WP Rocket cache'
+    run_command "cd ${REMOTE_ROOT} && wp rocket clean --confirm" || exitcode=$?
 fi
 
 if [[ "${INPUT_FLUSH_CACHE}" == *"objectcache"* ]] || [[ "${INPUT_FLUSH_CACHE}" == "auto" ]]; then
-    notice 'Flushing object cache'
-    run_command wp cache flush || exitcode=$?
+    echo 'Flushing object cache'
+    run_command "cd ${REMOTE_ROOT} && wp cache flush" || exitcode=$?
 fi
 
 if [ $exitcode -ne 0 ]; then
