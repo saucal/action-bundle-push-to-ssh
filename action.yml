@@ -109,6 +109,14 @@ runs:
         force-ignore: ${{ inputs.force-ignore }}
         strict-perms: ${{ inputs.ssh-handle-perms }}
 
+    - name: Prepare cache flush handler
+      if: ${{ inputs.flush-cache != 'false' }}
+      env:
+        INPUT_FLUSH_CACHE:        ${{ inputs.flush-cache }}
+        INPUT_FLUSH_CACHE_EXTRA_PARAMS: ${{ inputs.flush-cache-extra-params }}
+      shell: bash
+      run: "${{ github.action_path }}/prepare-cache-flush.sh"
+
     - name: Set message
       uses: saucal/action-slack-notification@v1
       if: "${{ steps.build-to-git.outputs.has-prev-commit == 'true' }}"
@@ -140,20 +148,6 @@ runs:
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
         ssh-handle-perms: ${{ inputs.ssh-handle-perms }}
         consistency-check: ${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && 'true' || '' }}
-
-    - name: Flush cache
-      if: ${{ inputs.flush-cache != 'false' }}
-      uses: saucal/action-inssheption@v2
-      with:
-        GH_TOKEN:            ${{ inputs.git-token }}
-        TARGET_SSH_HOST:     ${{ inputs.env-host }}
-        TARGET_SSH_USER:     ${{ inputs.env-user }}
-        TARGET_SSH_KEY:      ${{ inputs.env-key }}
-        TARGET_SSH_PASS:     ${{ inputs.env-pass }}
-        TARGET_SSH_PORT:     ${{ inputs.env-port }}
-        TARGET_SSH_PATH_DIR: ${{ inputs.env-remote-root }}
-        INSSHEPTION_SCRIPT:  ${{ github.action_path }}/flush-cache.sh
-        EXTRA_SCRIPT_ARGS:   "--flush-cache ${{ inputs.flush-cache }} --flush-cache-extra-params ${{ inputs.flush-cache-extra-params }}"
 
     - name: Send details about SSH consistency
       if: ${{ always() && ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && steps.deploy-to-ssh.outcome == 'failure' }}
