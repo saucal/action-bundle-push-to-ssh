@@ -155,18 +155,29 @@ runs:
       with:
         data-file: ${{ steps.deploy-to-ssh.outputs.bufferPath }}
 
-    - name: Upload details about SSH consistency
+    - name: Compute artifact name prefix
+      id: artifact-meta
+      shell: bash
+      env:
+        FULL_REPO: ${{ github.repository }}
+      run: echo "prefix=${FULL_REPO##*/}-$(date -u +'%Y%m%d-%H%M%S')" >> "$GITHUB_OUTPUT"
+
+    - name: Upload rsync sync plan
       uses: actions/upload-artifact@v4
       if: ${{ always() && steps.deploy-to-ssh.outputs.bufferPath }}
       with:
-        name: consistency-check-file
-        path: ${{ steps.deploy-to-ssh.outputs.bufferPath }}
-        
-    - name: Upload diff about SSH consistency
+        name: ${{ steps.artifact-meta.outputs.prefix }}-deploy-rsync-plan
+        if-no-files-found: ignore
+        path: |
+          ${{ steps.deploy-to-ssh.outputs.bufferPath }}
+          ${{ steps.deploy-to-ssh.outputs.gitManifestPath }}
+          ${{ steps.deploy-to-ssh.outputs.manifestDiffPath }}
+
+    - name: Upload consistency diffs
       uses: actions/upload-artifact@v4
       if: ${{ always() && steps.deploy-to-ssh.outputs.diffPath }}
       with:
-        name: consistency-diff-file
+        name: ${{ steps.artifact-meta.outputs.prefix }}-consistency-diffs
         path: ${{ steps.deploy-to-ssh.outputs.diffPath }}
 
     - name: Set message
