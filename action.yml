@@ -192,7 +192,8 @@ runs:
 
     - name: Push to GIT
       id: 'push-to-git'
-      if: ${{ inputs.verify-only != 'check' }}
+      # Only a normal deploy or an explicit 'commit' pushes the build; any other verify value is a check.
+      if: ${{ inputs.verify-only == '' || inputs.verify-only == 'commit' }}
       uses: saucal/action-build-to-git@v2
       with:
         path: ${{ inputs.built }}
