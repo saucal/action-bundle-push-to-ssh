@@ -71,6 +71,10 @@ inputs:
     description: "Extra force ignore files over SSH. Useful to extend the default configuration."
     required: false
     default: 'false'
+  verify-only:
+    description: "Don't rsync. 'check': run the zero-change consistency check against the new build and stop. 'commit': the same check, then push the build to the built repo (the server already runs it). The path a first deploy already takes; used by consistency self-heal."
+    required: false
+    default: ''
   disable-consistency-check:
     description: Do not do a consistency check and complete the workflow regardless.
     required: false
@@ -133,7 +137,7 @@ runs:
       id: 'deploy-to-ssh'
       uses: saucal/action-deploy-ssh@v4
       with:
-        manifest: "${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'true' ) && steps.build-to-git.outputs.manifest || '' }}"
+        manifest: "${{ ( inputs.verify-only == '' && inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'true' ) && steps.build-to-git.outputs.manifest || '' }}"
         env-host: ${{ inputs.env-host }}
         env-port: ${{ inputs.env-port }}
         env-user: ${{ inputs.env-user }}
@@ -147,7 +151,7 @@ runs:
         ssh-shell-params: ${{ inputs.ssh-shell-params }}
         ssh-extra-options: ${{ inputs.ssh-extra-options }}
         ssh-handle-perms: ${{ inputs.ssh-handle-perms }}
-        consistency-check: ${{ ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && 'true' || '' }}
+        consistency-check: ${{ ( inputs.verify-only != '' || ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) ) && 'true' || '' }}
 
     - name: Send details about SSH consistency
       if: ${{ always() && ( inputs.disable-consistency-check != 'true' && steps.build-to-git.outputs.has-prev-commit == 'false' ) && steps.deploy-to-ssh.outcome == 'failure' }}
@@ -188,6 +192,8 @@ runs:
 
     - name: Push to GIT
       id: 'push-to-git'
+      # Only a normal deploy or an explicit 'commit' pushes the build; any other verify value is a check.
+      if: ${{ inputs.verify-only == '' || inputs.verify-only == 'commit' }}
       uses: saucal/action-build-to-git@v2
       with:
         path: ${{ inputs.built }}
