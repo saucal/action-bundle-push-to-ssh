@@ -21,7 +21,9 @@ remote() { eval "$SSH_COMMAND 'cd ${REMOTE_ROOT} && $1'"; }
 # It prints SAUCAL_HOOK_RAN first, so a shell that couldn't run it at all is told apart below.
 saucal() { echo "echo SAUCAL_HOOK_RAN; if ! command -v wp >/dev/null || ! wp core version >/dev/null 2>&1; then :; elif wp cli has-command \"saucal $1\"; then wp saucal $1${2:+ $2}; elif ! wp option get home >/dev/null; then echo \"WP-CLI could not load the site.\" >&2; exit 1; fi"; }
 
-remote "$(saucal replay_upgrades)" > >(grep -v '^SAUCAL_HOOK_RAN$') \
+# The versions this deploy replaced (prepare-replay-upgrades.sh), base64: safe inside the quoting.
+previous=$(cat "${RUNNER_TEMP}/replay-previous" 2>/dev/null)
+remote "$(saucal replay_upgrades "${previous:+--previous=$previous}")" > >(grep -v '^SAUCAL_HOOK_RAN$') \
     || echo "::warning title=Plugin update replay::Replaying plugin updates failed, see above."
 
 output=$(remote "$(saucal update_plugin_databases)" 2>&1)

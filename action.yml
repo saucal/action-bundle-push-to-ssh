@@ -115,9 +115,13 @@ runs:
 
     - name: Hook plugin upgrade replay
       shell: bash
+      env:
+        BUILT:        ${{ inputs.built }}
+        MANIFEST_RAW: ${{ steps.build-to-git.outputs.manifest-raw }}
       run: |
         mkdir -p "${RUNNER_TEMP}/.saucal/ssh-deploy/post"
         rm -f "${RUNNER_TEMP}/db-updates-pending.txt"
+        "${{ github.action_path }}/prepare-replay-upgrades.sh" || true # Without it, the replay falls back on the site's record.
         ln -sf "${{ github.action_path }}/handle-replay-upgrades.sh" "${RUNNER_TEMP}/.saucal/ssh-deploy/post/20-handle-replay-upgrades.sh"
 
     - name: Prepare cache flush handler
