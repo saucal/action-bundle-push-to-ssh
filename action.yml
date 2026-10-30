@@ -113,6 +113,17 @@ runs:
         force-ignore: ${{ inputs.force-ignore }}
         strict-perms: ${{ inputs.ssh-handle-perms }}
 
+    - name: Hook plugin upgrade replay
+      shell: bash
+      env:
+        BUILT:        ${{ inputs.built }}
+        MANIFEST_RAW: ${{ steps.build-to-git.outputs.manifest-raw }}
+      run: |
+        mkdir -p "${RUNNER_TEMP}/.saucal/ssh-deploy/post"
+        rm -f "${RUNNER_TEMP}/db-updates-pending.txt"
+        "${{ github.action_path }}/prepare-replay-upgrades.sh" || true # Without it, the replay falls back on the site's record.
+        ln -sf "${{ github.action_path }}/handle-replay-upgrades.sh" "${RUNNER_TEMP}/.saucal/ssh-deploy/post/20-handle-replay-upgrades.sh"
+
     - name: Prepare cache flush handler
       if: ${{ inputs.flush-cache != 'false' }}
       env:
@@ -158,6 +169,20 @@ runs:
       uses: saucal/action-slack-notification@main
       with:
         data-file: ${{ steps.deploy-to-ssh.outputs.bufferPath }}
+
+    # Left by the replay hook (handle-replay-upgrades.sh), which can't set outputs itself.
+    - name: Check pending database updates
+      id: db-updates
+      if: ${{ always() }}
+      shell: bash
+      run: if [ -f "${RUNNER_TEMP}/db-updates-pending.txt" ]; then echo "pending=true" >> "$GITHUB_OUTPUT"; fi
+
+    - name: Send pending database updates
+      if: ${{ always() && steps.db-updates.outputs.pending == 'true' }}
+      continue-on-error: true # The files are live: a Slack failure must not skip pushing the build.
+      uses: saucal/action-slack-notification@v1
+      with:
+        data-file: ${{ runner.temp }}/db-updates-pending.txt
 
     - name: Compute artifact name prefix
       id: artifact-meta
