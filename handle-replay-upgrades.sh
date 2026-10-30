@@ -28,11 +28,12 @@ remote "$(saucal replay_upgrades "${previous:+--previous=$previous}")" > >(grep 
 
 output=$(remote "$(saucal update_plugin_databases)" 2>&1)
 status=$?
-echo "${output//SAUCAL_HOOK_RAN$'\n'/}"
+shown=$(grep -v '^SAUCAL_HOOK_RAN$' <<< "$output")
+[ -z "$shown" ] || echo "$shown"
 if [ $status -ne 0 ] && [[ "$output" != *SAUCAL_HOOK_RAN* ]]; then
     # The account couldn't run commands at all (restricted key, non-POSIX shell): nothing for the site to fix.
     echo "::warning title=Database updates not checked::The remote shell could not run the check, see above."
 elif [ $status -ne 0 ]; then
     echo "::warning title=Database updates pending::Plugin database updates are pending or could not be checked, see above."
-    printf 'Plugin database updates are pending or could not be checked after this deploy. Run them from wp-admin.\n\n%s\n' "${output//SAUCAL_HOOK_RAN$'\n'/}" > "${RUNNER_TEMP}/db-updates-pending.txt"
+    printf 'Plugin database updates are pending or could not be checked after this deploy. Run them from wp-admin.\n\n%s\n' "$shown" > "${RUNNER_TEMP}/db-updates-pending.txt"
 fi
